@@ -80,15 +80,15 @@ def creer_simulation(request):
                     return HttpResponse("Erreur de saisie : Veuillez vérifier que tous les champs sont remplis correctement.", status=400)
 
                 # Calculs pour chaque ligne de simulation
-                prix_total_achat = quantite * prix_unitaire
-                pourcentage_banque_montant = (prix_total_achat * pourcentage_banque) / Decimal('100.00')
-                prix_de_revient_total = prix_total_achat + frais_transit + frais_douane + pourcentage_banque_montant
-                marge_montant = (prix_de_revient_total * marge_percentage) / Decimal('100.00')
-                prix_vente_total_ht_sans_isb = prix_de_revient_total + marge_montant
+                prix_total_achat = (quantite * prix_unitaire).quantize(Decimal('0.01'))
+                pourcentage_banque_montant = ((prix_total_achat * pourcentage_banque) / Decimal('100.00')).quantize(Decimal('0.01'))
+                prix_de_revient_total = (prix_total_achat + frais_transit + frais_douane + pourcentage_banque_montant).quantize(Decimal('0.01'))
+                marge_montant = ((prix_de_revient_total * marge_percentage) / Decimal('100.00')).quantize(Decimal('0.01'))
+                prix_vente_total_ht_sans_isb = (prix_de_revient_total + marge_montant).quantize(Decimal('0.01'))
     
-                prix_vente_total_ht_avec_isb = (prix_vente_total_ht_sans_isb) / Decimal('0.98')
-                isb_montant = (prix_vente_total_ht_avec_isb * Decimal('0.02'))
-                prix_vente_total_ht = (prix_vente_total_ht_avec_isb) / quantite
+                prix_vente_total_ht_avec_isb = ((prix_vente_total_ht_sans_isb) / Decimal('0.98')).quantize(Decimal('0.01'))
+                isb_montant = (prix_vente_total_ht_avec_isb * Decimal('0.02')).quantize(Decimal('0.01'))
+                prix_vente_total_ht = ((prix_vente_total_ht_avec_isb) / quantite).quantize(Decimal('0.01'))
               
 
                 # Cumul des totaux pour toutes les lignes de simulation
@@ -96,8 +96,8 @@ def creer_simulation(request):
                 total_prix_revient += prix_de_revient_total
                 total_isb += isb_montant
                 total_ht_devis += prix_vente_total_ht_avec_isb
-                total_tva = (prix_vente_total_ht_avec_isb * Decimal('0.19'))
-                total_ttc_devis = total_ht_devis + total_tva
+                total_tva = (prix_vente_total_ht_avec_isb * Decimal('0.19')).quantize(Decimal('0.01'))
+                total_ttc_devis = (total_ht_devis + total_tva).quantize(Decimal('0.01'))
   # Calcul du TTC et TVA basé sur le total HT
                 
                
@@ -141,15 +141,15 @@ def resultat_simulation(request, ids_simulation):
     ids = ids_simulation.split(',')
     simulations = Simulation.objects.filter(id_simulation__in=ids)
 
-    total_ht_devis = sum(simulation.prix_vente_total_ht_avec_isb for simulation in simulations)
-    marge_montant_total = sum(simulation.marge_montant for simulation in simulations)
-    total_prix_revient = sum(simulation.prix_de_revient_total for simulation in simulations)
-    total_isb = sum(simulation.isb for simulation in simulations)
+    total_ht_devis = (sum(simulation.prix_vente_total_ht_avec_isb for simulation in simulations)).quantize(Decimal('0.01'))
+    marge_montant_total = (sum(simulation.marge_montant for simulation in simulations)).quantize(Decimal('0.01'))
+    total_prix_revient =(sum(simulation.prix_de_revient_total for simulation in simulations)).quantize(Decimal('0.01'))
+    total_isb = (sum(simulation.isb for simulation in simulations)).quantize(Decimal('0.01'))
     
     # Calculating total_tva based on total_ht_devis
-    total_tva = total_ht_devis * Decimal('0.19')
+    total_tva = (total_ht_devis * Decimal('0.19')).quantize(Decimal('0.01'))
     # Calculating total_ttc_devis based on total_ht_devis and total_tva
-    total_ttc_devis = total_ht_devis + total_tva
+    total_ttc_devis = (total_ht_devis + total_tva).quantize(Decimal('0.01'))
 
     context = {
         'simulations': simulations,
@@ -179,12 +179,12 @@ def download_pdf(request, ids_simulation):
     ids = ids_simulation.split(',')
     simulations = Simulation.objects.filter(id_simulation__in=ids)
 
-    total_ht_devis = sum(simulation.prix_vente_total_ht_avec_isb for simulation in simulations)
-    marge_montant_total = sum(simulation.marge_montant for simulation in simulations)
-    total_prix_revient = sum(simulation.prix_de_revient_total for simulation in simulations)
-    total_isb = sum(simulation.isb for simulation in simulations)
-    total_tva = sum(simulation.prix_vente_total_ht_avec_isb * Decimal('0.19') for simulation in simulations)
-    total_ttc_devis = total_ht_devis + total_tva
+    total_ht_devis = (sum(simulation.prix_vente_total_ht_avec_isb for simulation in simulations)).quantize(Decimal('0.01'))
+    marge_montant_total = (sum(simulation.marge_montant for simulation in simulations)).quantize(Decimal('0.01'))
+    total_prix_revient = (sum(simulation.prix_de_revient_total for simulation in simulations)).quantize(Decimal('0.01'))
+    total_isb = (sum(simulation.isb for simulation in simulations)).quantize(Decimal('0.01'))
+    total_tva = (sum(simulation.prix_vente_total_ht_avec_isb * Decimal('0.19') for simulation in simulations)).quantize(Decimal('0.01'))
+    total_ttc_devis = (total_ht_devis + total_tva).quantize(Decimal('0.01'))
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="resultat_simulation.pdf"'
@@ -391,14 +391,14 @@ def edit_simulation(request, id_simulation):
             pourcentage_banque = Decimal('0')
 
         # Perform calculations
-        prix_total_achat = quantite * prix_unitaire
-        pourcentage_banque_montant = (prix_total_achat * pourcentage_banque) / Decimal('100.00')
-        prix_de_revient_total = prix_total_achat + frais_transit + frais_douane + pourcentage_banque_montant
-        marge_montant = (prix_de_revient_total * marge_percentage) / Decimal('100.00')
-        prix_vente_total_ht_sans_isb = prix_de_revient_total + marge_montant
-        prix_vente_total_ht_avec_isb = prix_vente_total_ht_sans_isb / Decimal('0.98')
-        isb_montant = prix_vente_total_ht_avec_isb * Decimal('0.02')
-        prix_vente_total_ht = prix_vente_total_ht_avec_isb / quantite
+        prix_total_achat = (quantite * prix_unitaire).quantize(Decimal('0.01'))
+        pourcentage_banque_montant = ((prix_total_achat * pourcentage_banque) / Decimal('100.00')).quantize(Decimal('0.01'))
+        prix_de_revient_total = (prix_total_achat + frais_transit + frais_douane + pourcentage_banque_montant).quantize(Decimal('0.01'))
+        marge_montant = ((prix_de_revient_total * marge_percentage) / Decimal('100.00')).quantize(Decimal('0.01'))
+        prix_vente_total_ht_sans_isb = (prix_de_revient_total + marge_montant).quantize(Decimal('0.01'))
+        prix_vente_total_ht_avec_isb = (prix_vente_total_ht_sans_isb / Decimal('0.98')).quantize(Decimal('0.01'))
+        isb_montant = (prix_vente_total_ht_avec_isb * Decimal('0.02')).quantize(Decimal('0.01'))
+        prix_vente_total_ht = (prix_vente_total_ht_avec_isb / quantite).quantize(Decimal('0.01'))
 
         # Update simulation object with new values
         simulation.titre = titre

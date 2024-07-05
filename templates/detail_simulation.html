@@ -134,9 +134,10 @@
         <div class="card-footer text-right">
             <a href="{% url 'edit_simulation' simulation.id_simulation %}" class="btn btn-warning">Éditer</a>
             <a href="{% url 'liste_simulations' %}" class="btn btn-secondary">Retour à la liste</a>
+            <a href="{% url 'download_pdf' simulation.id_simulation %}" class="btn-download"><i class="material-icons">picture_as_pdf</i>Télécharger en PDF</a>
+            <a href="{% url 'download_excel' simulation.id_simulation %}" class="btn-download"><i class="material-icons">description</i>Télécharger en Excel</a>
         </div>
-        <a href="{% url 'download_pdf' simulation.id_simulation %}" class="btn-download"><i class="material-icons">picture_as_pdf</i>Télécharger en PDF</a>
-        <a href="{% url 'download_excel' simulation.id_simulation %}" class="btn-download"><i class="material-icons">description</i>Télécharger en Excel</a>
+       
 
     </div>
 
