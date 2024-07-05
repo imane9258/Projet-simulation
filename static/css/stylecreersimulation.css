@@ -1,0 +1,141 @@
+/* static/css/styles.css */
+
+.form-container {
+    width: 100%;
+    margin-top: 0 auto;
+}
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    table-layout: fixed;
+}
+
+label {
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+#titre {
+    width: 25%;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.form-table th, .form-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+.form-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.form-table td input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px;
+    font-size: 14px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.add-row-button, .delete-row-button, .delete-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.delete-button, .delete-row-button {
+    background-color: #f44336;
+}
+
+.simulate-button {
+    background-color: orange;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+   
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    float: right;
+    margin-top: 20px;
+}
+.simulate-button i {
+    margin-right: 5px;
+}
+
+.simulate-button:focus {
+    outline: none;
+}
+
+.error-message {
+    display: none;
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+}
+input.error {
+    border: 1px solid red;
+}
+
+
+
+.error {
+    border-color: red;
+}
+/* stylecreersimulation.css */
+
+.loading-animation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(255, 255, 255);
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+}
+
+.loading-animation i {
+    font-size: 24px;
+    margin-right: 10px;
+    
+}
+
+

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Application{% endblock %}</title>
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="sidebar">
+        <img src="{% static 'images/logoNOVATECH2.png' %}" alt="Logo Novatech">
+        <h2>Menu</h2>
+        <ul>
+            <li><a href="{% url 'accueil' %}"><i class="fas fa-home"></i> Accueil</a></li>
+            <li>
+                <a href="#" onclick="toggleSubmenu(event)">
+                    <i class="fas fa-cogs"></i> Simulation <span class="dropdown-arrow">&#9660;</span>
+                </a>
+                <ul class="submenu">
+                    <li><a href="{% url 'creer_simulation' %}"><i class="fas fa-plus"></i> Créer une simulation</a></li>
+                    <li><a href="{% url 'liste_simulations' %}"><i class="fas fa-list"></i> Liste des simulations</a></li>
+                </ul>
+            </li>
+            <li><a href="{% url 'rapports' %}"><i class="fas fa-chart-line"></i> Rapports</a></li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <div class="header">
+            <input type="text" class="form-control" placeholder="Recherche...">
+            <div class="user-info">
+                <img src="{% static 'images/user.png' %}" alt="User Icon">
+                <span>{{ user.username }}</span>
+            </div>
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script>
+        function toggleSubmenu(event) {
+            event.preventDefault();
+            const submenu = event.currentTarget.nextElementSibling;
+            const arrow = event.currentTarget.querySelector('.dropdown-arrow');
+            if (submenu.style.display === 'block') {
+                submenu.style.display = 'none';
+                arrow.classList.add('collapsed');
+            } else {
+                submenu.style.display = 'block';
+                arrow.classList.remove('collapsed');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Centrer verticalement */
+  margin: 0; /* Supprimer les marges par défaut du body */
+}
+
+.container {
+  width: 400px; /* Largeur fixe du conteneur */
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  text-align: center;
+  margin-top: 20px; /* Espacement par rapport au haut */
+  margin-bottom: 20px; /* Espacement par rapport au bas */
+}
+
+.logo img {
+  display: block;
+  margin: 0 auto;
+  width: 200px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.form h1 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.form input[type="text"],
+.form input[type="password"]{
+  width: 100%; /* Utiliser 100% pour que les éléments prennent toute la largeur du conteneur */
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.form button {
+  width: 50%; /* Utiliser 100% pour que les éléments prennent toute la largeur du conteneur */
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.form button {
+  background-color: #00C0FE;
+  color: #000000;
+  border: 1px solid #000; /* Ajouter une bordure */
+  border-radius: 50px; /* Ajouter des coins arrondis */
+  cursor: pointer;
+}
+
+.form button:hover {
+  background-color: #0056b3;
+  color: #ffffff;
+}
+
+.error-messages {
+  margin-bottom: 20px;
+}
+
+.error {
+  color: #d9534f;
+}

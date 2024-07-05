@@ -1,0 +1,169 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.sidebar ul li.active a {
+    background-color: #34495e; /* Couleur de fond pour le lien actif */
+}
+
+.dropdown-arrow {
+    float: right;
+    margin-right: 10px;
+    transition: transform 0.3s;
+}
+
+.sidebar ul li.active .dropdown-arrow {
+    transform: rotate(90deg); /* Rotation de la flèche pour le lien actif */
+}
+
+
+.sidebar {
+    width: 250px;
+    background-color: #1d6279; /* Couleur de fond du sidebar */
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    color: white;
+    text-align: center;
+}
+
+.sidebar img {
+    width: 150px;
+    background-color: #ffff;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    border-radius: 4px;
+    position: relative;
+}
+
+.sidebar ul li a:hover {
+    background-color: #2F3C3C; /* Couleur de fond au survol */
+}
+
+.sidebar ul li .submenu {
+    display: none;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #2F3C3C; /* Couleur de fond du submenu */
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    position: absolute;
+    top: 100%; /* Position sous le lien parent */
+    left: 0;
+    z-index: 99;
+}
+
+.sidebar ul li .submenu li {
+    margin-left: 0; /* Réinitialiser la marge pour le submenu */
+}
+
+.sidebar ul li .submenu li a {
+    padding: 10px;
+    display: block;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar ul li .submenu li a:hover {
+    background-color: #34495e; /* Couleur de fond au survol du sous-menu */
+}
+
+.sidebar ul li .dropdown-arrow {
+    float: right;
+    margin-right: 10px;
+    transition: transform 0.3s;
+    font-size: 0.8em; /* Taille de la flèche plus petite */
+    margin-top: 2px; /* Ajustement de la position verticale */
+}
+
+.sidebar ul li .dropdown-arrow i {
+    margin-left: 5px; /* Ajustement de la marge à gauche de l'icône */
+}
+
+.sidebar ul li:hover .dropdown-arrow {
+    transform: rotate(90deg); /* Rotation de la flèche */
+}
+
+.sidebar ul li.active a {
+    background-color: #000000; /* Couleur de fond pour le lien actif */
+}
+
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header input[type="text"] {
+    padding: 10px;
+    width: 300px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-info img {
+    width: 30px; /* Taille de l'icône utilisateur plus petite */
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.content {
+    background-color: #ecf0f1;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.sidebar ul li.active a {
+    background-color: #34495e; /* Couleur de fond pour le lien actif */
+}
+
+.dropdown-arrow {
+    float: right;
+    margin-right: 10px;
+    transition: transform 0.3s;
+}
+
+.sidebar ul li.active .dropdown-arrow {
+    transform: rotate(90deg); /* Rotation de la flèche pour le lien actif */
+}

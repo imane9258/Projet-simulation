@@ -1,0 +1,52 @@
+<!-- edit_simulation.html -->
+{% extends 'base.html' %}
+
+{% block title %}Éditer la Simulation{% endblock %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-6A+wzJW5dI7+x4W4p5vVUKct+6z4C6mRSQ8qNkf24tJSJk2BbMq94lm7qGq6lVWhLs9xE6PKb0zL9E9zAok5OQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="{% static 'css/styleeditesimulation.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Modification de la simulation</h1>
+    <form id="simulationForm" method="POST" action="{% url 'edit_simulation' simulation.id_simulation %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="titre">Titre de la simulation :</label>
+            <input type="text" id="titre" name="titre" value="{{ simulation.titre }} "autocomplete="off" required >
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="table form-table">
+                <thead>
+                    <tr>
+                        <th>Désignation</th>
+                        <th>Quantité</th>
+                        <th>Prix Unitaire d'Achat (FCFA)</th>
+                        <th>Frais de transport (FCFA)</th>
+                        <th>Frais de douane (FCFA)</th>
+                        <th>Marge Pourcentage (%)</th>
+                        <th>Pourcentage banque (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="servicesTableBody">
+                    <tr id="row0">
+                        <td><input type="text" name="designation" value="{{ simulation.designation }}"autocomplete="off" required ></td>
+                        <td><input type="text" name="quantite" value="{{ simulation.quantite }}"autocomplete="off" required ></td>
+                        <td><input type="text" name="prix_unitaire" value="{{ simulation.prix }}"autocomplete="off" required ></td>
+                        <td><input type="text" name="frais_transit" value="{{ simulation.montant_transit }}"autocomplete="off" required ></td>
+                        <td><input type="text" name="frais_douane" value="{{ simulation.montant_douane }}"autocomplete="off" required ></td>
+                        <td><input type="text" name="marge_percentage" value="{{ simulation.marge_pourcentage }}"autocomplete="off" required ></td>
+                        <td><input type="text" name="pourcentage_banque" value="{{ simulation.pourcentage_banque }}"autocomplete="off" required ></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+       
+    </form>
+</div>
+<script src="{% static 'js/creersimulation.js' %}"></script>
+{% endblock %}

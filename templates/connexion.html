@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="{% static 'images/logoNOVATECH2.png' %}" alt="Logo de votre application">
+        </div>
+        <div class="form">
+            <h1 class="text-center">Connexion</h1>
+
+            {% if messages %}
+            <div class="error-messages">
+                {% for message in messages %}
+                <p class="error">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'connexion' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">Identifiant</label>
+                    <input type="text" class="form-control" id="username" name="username"  autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Masquer les messages d'erreur après 5 secondes
+        setTimeout(function() {
+            var errorMessages = document.querySelector('.error-messages');
+            if (errorMessages) {
+                errorMessages.style.display = 'none';
+            }
+        }, 5000); // 5000 millisecondes = 5 secondes
+    </script>
+</body>
+</html>

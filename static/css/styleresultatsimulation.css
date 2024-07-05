@@ -1,0 +1,100 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.resultat-simulation h1,
+.resultat-simulation h2 {
+    color: #4CAF50; /* Green */
+}
+
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.paper-effect {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    flex: 1 1 calc(50% - 20px);
+}
+
+.headerres {
+    background: #000000; 
+    color: white;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px 8px 0 0;
+}
+
+.header h2 {
+    margin: 0;
+}
+
+.content {
+    padding: 15px;
+}
+
+.content p {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+.content strong {
+    color: #4CAF50; /* Green */
+}
+
+.totals {
+    margin-top: 40px;
+}
+
+.total-summary {
+    background: #4CAF50; /* Green */
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.highlight span {
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .paper-effect {
+        flex: 1 1 100%;
+    }
+}
+/* Styling for download buttons */
+.btn-download {
+    display: inline-block;
+    margin-right: 10px;
+    padding: 8px 16px;
+    font-size: 18px;
+    text-align: center;
+    text-decoration: none;
+    background-color: #ffffff;
+    color: #000000;
+    border: #4CAF50;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Styling for icons within buttons */
+.btn-download i {
+    margin-right: 5px; /* Adjust margin as needed */
+}

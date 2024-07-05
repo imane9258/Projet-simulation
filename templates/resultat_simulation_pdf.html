@@ -1,0 +1,86 @@
+<!-- resultat_simulation_pdf.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Résultats de la Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+        .header, .footer {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin-bottom: 40px;
+        }
+        .total-summary {
+            margin-top: 20px;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+            text-align: right;
+        }
+        .highlight {
+            font-weight: bold;
+        }
+        .button-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Résultats de la Simulation</h1>
+        <h2>{{ simulation_titre }}</h2>
+    </div>
+    <div class="content">
+        {% for simulation in simulations %}
+            <div>
+                <h3>{{ simulation.designation }}</h3>
+                <p>Prix d'Achat Unitaire: {{ simulation.prix|intspace }}</p>
+                <p>Quantité: {{ simulation.quantite|intspace }}</p>
+                <p>Prix Total Achat: {{ simulation.prix_total_achat|intspace }}</p>
+                <p>Frais Transit: {{ simulation.montant_transit|intspace }}</p>
+                <p>Frais Douane: {{ simulation.montant_douane|intspace }}</p>
+                <p>Pourcentage Banque: {{ simulation.pourcentage_banque|intspace }}</p>
+                <p>Marge Pourcentage: {{ simulation.marge_pourcentage|intspace }}</p>
+                <p>Montant Marge: {{ simulation.marge_montant|intspace }}</p>
+                <p>Prix Vente Unitaire: {{ simulation.prix_vente_total_ht|intspace }}</p>
+                <p>Prix de Revient: {{ simulation.prix_vente_total_ht_sans_isb|intspace }}</p>
+                <p>ISB: {{ simulation.isb|intspace }}</p>
+                <p>Total HT avec ISB: {{ simulation.prix_vente_total_ht_avec_isb|intspace }}</p>
+            </div>
+            <hr>
+        {% endfor %}
+    </div>
+    <div class="totals">
+        <div class="total-summary highlight">
+            <p>Marge Montant Total: {{ marge_montant_total|intspace }}</p>
+        </div>
+        <div class="total-summary highlight">
+            <p>Total Prix Revient: {{ total_prix_revient|intspace }}</p>
+        </div>
+        <div class="total-summary highlight">
+            <p>ISB: {{ total_isb|intspace }}</p>
+        </div>
+        <div class="total-summary highlight">
+            <p>Total HT du Devis: {{ total_ht_devis|intspace }}</p>
+        </div>
+        <div class="total-summary highlight">
+            <p>TVA: {{ total_tva|intspace }}</p>
+        </div>
+        <div class="total-summary highlight">
+            <p>Total TTC du Devis: {{ total_ttc_devis|intspace }}</p>
+        </div>
+    </div>
+    <div class="footer">
+        <p>Merci pour votre confiance</p>
+    </div>
+</body>
+</html>

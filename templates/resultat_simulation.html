@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+{% block title %}Résultats de la Simulation{% endblock %}
+
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styleresultatsimulation.css' %}?v=1.0">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+{% endblock %}
+
+{% block content %}
+<div class="container resultat-simulation mt-5">
+    {% load humanize %}
+    <h1 class="text-center mb-4">Résultats de la Simulation </h1>
+    <h2 class="text-center mb-4">{{ simulation_titre }}</h2>
+    <div class="flex-container">
+        {% for simulation in simulations %}
+            <div class="paper-effect">
+                <div class="headerres">
+                    <h3 class="mb-0">  {{ simulation.designation }}</h3>
+                </div>
+                <div class="content">
+                    <p><strong>Prix d'Achat Unitaire:</strong> {{ simulation.prix|intspace }}</p>
+                    <p><strong>Quantité:</strong> {{ simulation.quantite|intspace }}</p>
+                    <p><strong>Prix Total Achat:</strong> {{ simulation.prix_total_achat|intspace }}</p>
+                    <p><strong>Frais Transit:</strong> {{ simulation.montant_transit|intspace }}</p>
+                    <p><strong>Frais Douane:</strong> {{ simulation.montant_douane|intspace }}</p>
+                    <p><strong>Pourcentage Banque:</strong> {{ simulation.pourcentage_banque|intspace }}</p>
+                    <p><strong>Montant Banque:</strong> {{ simulation.pourcentage_banque_montant|intspace }}</p>
+                    <p><strong>Marge Pourcentage:</strong> {{ simulation.marge_pourcentage|intspace }}</p>
+                    <p><strong>Montant Marge:</strong> {{ simulation.marge_montant|intspace }}</p>
+                    <p><strong>Prix Vente Unitaire:</strong> {{ simulation.prix_vente_total_ht|intspace }}</p>
+                    <p><strong>Prix de Revient :</strong> {{ simulation.prix_vente_total_ht_sans_isb|intspace }}</p>
+                    <p><strong>ISB:</strong> {{ simulation.isb|intspace}}</p>
+                    <p><strong>Total HT avec ISB:</strong> {{ simulation.prix_vente_total_ht_avec_isb|intspace }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="totals mb-4 text-center">
+        <div class="total-summary highlight">
+            <p>Marge Montant Total: <span>{{ marge_montant_total|intspace }}</span></p>
+        </div>
+        <div class="total-summary highlight">
+            <p>Total Prix Revient: <span>{{ total_prix_revient|intspace }}</span></p>
+        </div>
+        <div class="total-summary highlight">
+            <p>ISB: <span>{{ total_isb|intspace }}</span></p>
+        </div>
+        <div class="total-summary highlight">
+            <p>Total HT du Devis: <span>{{ total_ht_devis|intspace }}</span></p>
+        </div>
+        <div class="total-summary highlight">
+            <p>TVA: <span>{{ total_tva|intspace }}</span></p>
+        </div>
+        <div class="total-summary highlight">
+            <p>Total TTC du Devis: <span>{{ total_ttc_devis|intspace }}</span></p>
+        </div>
+        <div class="button-container text-center mt-4">
+            <a href="{% url 'download_pdf' ids_simulation %}" class="btn-download"><i class="material-icons">picture_as_pdf</i> Télécharger PDF</a>
+            <a href="{% url 'download_excel' ids_simulation %}" class="btn-download"><i class="material-icons">description</i> Télécharger Excel</a>
+        </div>
+        
+        
+    </div>
+</div>
+{% endblock %}

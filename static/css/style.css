@@ -1,0 +1,129 @@
+/* Reset des styles par défaut */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+/* Styles pour le conteneur principal */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin-left: 250px; /* Espace pour le menu latéral */
+}
+
+/* Styles pour la barre latérale */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 250px;
+    background-color: #343a40;
+    color: #fff;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.sidebar img {
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: #fff;
+}
+
+.sidebar h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+    text-align: center;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin-bottom: 10px;
+}
+
+.sidebar ul li a {
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.sidebar ul li a:hover {
+    background-color: #495057;
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+}
+
+.sidebar .submenu {
+    display: none;
+    padding-left: 20px;
+}
+
+.sidebar .submenu li a {
+    padding: 8px;
+    font-size: 14px;
+}
+
+/* Styles pour le contenu principal */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.header .form-control {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+.header .user-info {
+    display: flex;
+    align-items: center;
+}
+
+.header .user-info img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.content {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Styles pour la flèche du menu déroulant */
+.dropdown-arrow {
+    margin-left: auto;
+    transition: transform 0.3s;
+}
+
+.dropdown-arrow.collapsed {
+    transform: rotate(-90deg);
+}
+
+

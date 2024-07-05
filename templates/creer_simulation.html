@@ -1,0 +1,67 @@
+<!-- creer_simulation.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Créer une Simulation{% endblock %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-6A+wzJW5dI7+x4W4p5vVUKct+6z4C6mRSQ8qNkf24tJSJk2BbMq94lm7qGq6lVWhLs9xE6PKb0zL9E9zAok5OQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="{% static 'css/stylecreersimulation.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Créer une simulation</h1>
+    <form id="simulationForm" method="POST" action="{% url 'creer_simulation' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="titre">Titre de la simulation :</label>
+            <input type="text" id="titre" name="titre" autocomplete="off" required required title="Veuillez remplir ce champs">
+            <div class="error-message" id="titreError">Ce champ est requis.</div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="form-table">
+                <thead>
+                    <tr>
+                        <th>Désignation</th>
+                        <th>Quantité</th>
+                        <th>Prix Unitaire d'Achat (FCFA)</th>
+                        <th>Frais de transport (FCFA)</th>
+                        <th>Frais de douane (FCFA)</th>
+                        <th>Marge Pourcentage (%)</th>
+                        <th>Pourcentage banque (%)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="servicesTableBody">
+                    <!-- Première ligne de service -->
+                    <tr id="row0">
+                        <td><input type="text" name="designation0"   autocomplete="off" required title="Veuillez remplir ce champs"></td>
+                        <td><input type="text" name="quantite0" pattern="[0-9]*" required autocomplete="off" required title="Veuillez remplir ce champs"></td>
+                        <td><input type="text" name="prix_unitaire0" pattern="[0-9]*" required autocomplete="off" required title="Veuillez remplir ce champs"></td>
+                        <td><input type="text" name="frais_transit0" pattern="[0-9]*" required autocomplete="off" required title="Veuillez remplir ce champs"></td>
+                        <td><input type="text" name="frais_douane0" pattern="[0-9]*" required autocomplete="off" required title="Veuillez remplir ce champs"></td>
+                        <td><input type="text" name="marge_percentage0" pattern="[0-9]*" required autocomplete="off" required title="Veuillez remplir ce champs"></td>
+                        <td><input type="text" name="pourcentage_banque0" pattern="[0-9]*" required autocomplete="off" required title="Veuillez remplir ce champs"></td>
+                        <td><button type="button" class="delete-button" onclick="supprimerLigne(this)">Supprimer</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="button-container">
+            <div class="button-group">
+                <button type="button" class="add-row-button" onclick="ajouterLigne()">Ajouter une ligne</button>
+              
+            </div>
+        </div>
+
+        <button type="button" class="simulate-button" onclick="simuler()">
+            <i class="fas fa-play"></i> Simuler
+        </button>
+    </form>
+</div>
+<script src="{% static 'js/creersimulation.js' %}"></script>
+{% endblock %}
+   
