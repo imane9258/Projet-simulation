@@ -1,13 +1,24 @@
 {% extends 'base.html' %}
 
-{% block title %}Accueil - Votre Titre{% endblock %}
+{% block title %}accueil{% endblock %}
+{% load static %}
+{% block extra_css %}
 
-{% block accueil_active %}active{% endblock %}
+<link rel="stylesheet" href="{% static 'css/.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Accueil</h1>
-    <!-- Contenu spécifique à la page d'accueil -->
-    
+<!-- Affichage des trois dernières simulations -->
+<div class="latest-simulations">
+    <h2>Dernières Simulations</h2>
+    <ul>
+        {% for simulation in dernieres_simulations %}
+            <li>
+                <h3>{{ simulation.titre }}</h3>
+               
+                <!-- Autres détails à afficher -->
+            </li>
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}

@@ -21,10 +21,17 @@ def connexion(request):
         else:
             messages.error(request, 'Nom d\'utilisateur ou mot de passe incorrect.')
     return render(request, 'connexion.html')
-def accueil(request):
-    return render(request, 'accueil.html')
+from django.db.models import F
 
-@login_required
+def accueil(request):
+    # Récupérer les trois dernières simulations triées par date de création
+    dernieres_simulations = Simulation.objects.order_by('-id_simulation')[:3]
+
+    context = {
+        'dernieres_simulations': dernieres_simulations
+    }
+    return render(request, 'accueil.html', context)
+
 
 @login_required
 def liste_simulations(request):
@@ -423,3 +430,33 @@ def edit_simulation(request, id_simulation):
         return redirect('detail_simulation', simulation_id=simulation.id_simulation)
 
     return render(request, 'edit_simulation.html', {'simulation': simulation})
+
+
+
+
+# views.py
+
+from django.shortcuts import render
+from .models import Simulation
+from django.db.models import Sum, Avg, Count
+
+def rapports(request):
+    simulations = Simulation.objects.all()
+
+    # Calculer les statistiques
+    total_simulations = simulations.count()
+    total_investi = simulations.aggregate(total=Sum('total_prix_revient'))['total']
+    benefice = simulations.aggregate(total=Sum('marge_montant'))['total']
+    cout_moyen = simulations.aggregate(avg=Avg('total_prix_revient'))['avg']
+    marge_moyenne = simulations.aggregate(avg=Avg('marge_montant'))['avg']
+
+    context = {
+        'simulations': simulations,
+        'total_simulations': total_simulations,
+        'total_investi': total_investi,
+        'benefice': benefice,
+        'cout_moyen': cout_moyen,
+        'marge_moyenne': marge_moyenne,
+    }
+    
+    return render(request, 'rapports.html', context)
