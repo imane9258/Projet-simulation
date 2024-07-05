@@ -356,8 +356,12 @@ from decimal import Decimal
 
 from decimal import Decimal, InvalidOperation
 
+from decimal import Decimal, InvalidOperation
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Simulation
+
 def edit_simulation(request, id_simulation):
-    simulation = Simulation.objects.get(id_simulation=id_simulation)
+    simulation = get_object_or_404(Simulation, id_simulation=id_simulation)
 
     if request.method == 'POST':
         titre = request.POST.get('titre', '')
@@ -392,9 +396,9 @@ def edit_simulation(request, id_simulation):
         prix_de_revient_total = prix_total_achat + frais_transit + frais_douane + pourcentage_banque_montant
         marge_montant = (prix_de_revient_total * marge_percentage) / Decimal('100.00')
         prix_vente_total_ht_sans_isb = prix_de_revient_total + marge_montant
-        prix_vente_total_ht_avec_isb = (prix_vente_total_ht_sans_isb) / Decimal('0.98')
-        isb_montant = (prix_vente_total_ht_avec_isb * Decimal('0.02'))
-        prix_vente_total_ht = (prix_vente_total_ht_avec_isb) / quantite
+        prix_vente_total_ht_avec_isb = prix_vente_total_ht_sans_isb / Decimal('0.98')
+        isb_montant = prix_vente_total_ht_avec_isb * Decimal('0.02')
+        prix_vente_total_ht = prix_vente_total_ht_avec_isb / quantite
 
         # Update simulation object with new values
         simulation.titre = titre
@@ -405,6 +409,15 @@ def edit_simulation(request, id_simulation):
         simulation.montant_douane = frais_douane
         simulation.marge_pourcentage = marge_percentage
         simulation.pourcentage_banque = pourcentage_banque
+        simulation.prix_total_achat = prix_total_achat
+        simulation.pourcentage_banque_montant = pourcentage_banque_montant
+        simulation.prix_de_revient_total = prix_de_revient_total
+        simulation.marge_montant = marge_montant
+        simulation.prix_vente_total_ht_sans_isb = prix_vente_total_ht_sans_isb
+        simulation.prix_vente_total_ht_avec_isb = prix_vente_total_ht_avec_isb
+        simulation.isb_montant = isb_montant
+        simulation.prix_vente_total_ht = prix_vente_total_ht
+
         simulation.save()
 
         return redirect('detail_simulation', simulation_id=simulation.id_simulation)
