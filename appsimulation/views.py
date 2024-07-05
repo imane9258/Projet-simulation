@@ -214,27 +214,27 @@ def download_pdf(request, ids_simulation):
         y_position -= 5 * mm
         p.drawString(20 * mm, y_position, f"Quantité: {simulation.quantite}")
         y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Prix Total Achat: {simulation.prix_total_achat}")
+        p.drawString(20 * mm, y_position, f"Prix Total Achat: {simulation.prix_total_achat} FCFA")
         y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Frais Transit: {simulation.montant_transit}")
+        p.drawString(20 * mm, y_position, f"Frais Transit: {simulation.montant_transit} FCFA")
         y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Frais Douane: {simulation.montant_douane}")
+        p.drawString(20 * mm, y_position, f"Frais Douane: {simulation.montant_douane} FCFA")
         y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Pourcentage Banque: {simulation.pourcentage_banque}")
+        p.drawString(20 * mm, y_position, f"Pourcentage Banque: {simulation.pourcentage_banque}%")
         y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Montant Banque: {simulation.pourcentage_banque_montant}")
+        p.drawString(20 * mm, y_position, f"Montant Banque: {simulation.pourcentage_banque_montant} FCFA")
         y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Marge Pourcentage: {simulation.marge_pourcentage}")
+        p.drawString(20 * mm, y_position, f"Marge Pourcentage: {simulation.marge_pourcentage}%")
         y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Montant Marge: {simulation.marge_montant}")
+        p.drawString(20 * mm, y_position, f"Montant Marge: {simulation.marge_montant} FCFA")
         y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Prix Vente Unitaire: {simulation.prix_vente_total_ht}")
+        p.drawString(20 * mm, y_position, f"Prix Vente Unitaire: {simulation.prix_vente_total_ht} FCFA")
         y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Prix de Revient: {simulation.prix_vente_total_ht_sans_isb}")
+        p.drawString(20 * mm, y_position, f"Prix de Revient: {simulation.prix_vente_total_ht_sans_isb} FCFA")
         y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"ISB: {simulation.isb}")
+        p.drawString(20 * mm, y_position, f"ISB: {simulation.isb} FCFA")
         y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Total HT avec ISB: {simulation.prix_vente_total_ht_avec_isb}")
+        p.drawString(20 * mm, y_position, f"Total HT avec ISB: {simulation.prix_vente_total_ht_avec_isb} FCFA")
         y_position -= 10 * mm
 
     # Totals
@@ -244,17 +244,17 @@ def download_pdf(request, ids_simulation):
     y_position -= 10 * mm
 
     p.setFont("Helvetica", 10)
-    p.drawString(20 * mm, y_position, f"Marge Montant Total: {marge_montant_total}")
+    p.drawString(20 * mm, y_position, f"Marge Montant Total: {marge_montant_total} FCFA")
     y_position -= 5 * mm
-    p.drawString(20 * mm, y_position, f"Total Prix Revient: {total_prix_revient}")
+    p.drawString(20 * mm, y_position, f"Total Prix Revient: {total_prix_revient} FCFA")
     y_position -= 5 * mm
-    p.drawString(20 * mm, y_position, f"ISB: {total_isb}")
+    p.drawString(20 * mm, y_position, f"ISB: {total_isb} FCFA")
     y_position -= 5 * mm
-    p.drawString(20 * mm, y_position, f"Total HT du Devis: {total_ht_devis}")
+    p.drawString(20 * mm, y_position, f"Total HT du Devis: {total_ht_devis} FCFA")
     y_position -= 5 * mm
-    p.drawString(20 * mm, y_position, f"TVA: {total_tva}")
+    p.drawString(20 * mm, y_position, f"TVA: {total_tva} FCFA")
     y_position -= 5 * mm
-    p.drawString(20 * mm, y_position, f"Total TTC du Devis: {total_ttc_devis}")
+    p.drawString(20 * mm, y_position, f"Total TTC du Devis: {total_ttc_devis} FCFA")
 
     p.showPage()
     p.save()

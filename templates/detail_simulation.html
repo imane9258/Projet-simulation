@@ -14,17 +14,10 @@
             <h2>Détails de la Simulation: {{ simulation.titre }}</h2>
         </div>
         <div class="card-body">
+           
             <div class="row detail-item">
                 <div class="col-md-3">
-                    <h5><strong>Titre:</strong></h5>
-                </div>
-                <div class="col-md-9">
-                    <p>{{ simulation.titre }}</p>
-                </div>
-            </div>
-            <div class="row detail-item">
-                <div class="col-md-3">
-                    <h5><strong>Désignation:</strong></h5>
+                    <h5>Désignation:</h5>
                 </div>
                 <div class="col-md-9">
                     <p>{{ simulation.designation }}</p>
@@ -32,7 +25,7 @@
             </div>
             <div class="row detail-item">
                 <div class="col-md-3">
-                    <h5><strong>Quantité:</strong></h5>
+                    <h5>Quantité:</h5>
                 </div>
                 <div class="col-md-9">
                     <p>{{ simulation.quantite }}</p>
@@ -40,50 +33,92 @@
             </div>
             <div class="row detail-item">
                 <div class="col-md-3">
-                    <h5><strong>Prix Unitaire d'Achat (FCFA):</strong></h5>
+                    <h5>Prix Unitaire d'Achat :</h5>
                 </div>
                 <div class="col-md-9">
-                    <p>{{ simulation.prix }}</p>
+                    <p>{{ simulation.prix }} FCFA</p>
                 </div>
             </div>
             <div class="row detail-item">
                 <div class="col-md-3">
-                    <h5><strong>Frais de Transport (FCFA):</strong></h5>
+                    <h5>Frais de Transport :</h5>
                 </div>
                 <div class="col-md-9">
-                    <p>{{ simulation.montant_transit }}</p>
+                    <p>{{ simulation.montant_transit }} FCFA</p>
                 </div>
             </div>
             <div class="row detail-item">
                 <div class="col-md-3">
-                    <h5><strong>Frais de Douane (FCFA):</strong></h5>
+                    <h5>Frais de Douane :</h5>
                 </div>
                 <div class="col-md-9">
-                    <p>{{ simulation.montant_douane }}</p>
+                    <p>{{ simulation.montant_douane }} FCFA</p>
+                </div>
+            </div>
+            
+            <div class="row detail-item">
+                <div class="col-md-3">
+                    <h5>Pourcentage Banque :</h5>
+                </div>
+                <div class="col-md-9">
+                    <p>{{ simulation.pourcentage_banque }}%</p>
+                </div>
+            </div>
+            
+            <div class="row detail-item">
+                <div class="col-md-3">
+                    <h5>Montant Banque :</h5>
+                </div>
+                <div class="col-md-9">
+                    <p>{{ simulation.pourcentage_banque_montant }} FCFA</p>
                 </div>
             </div>
             <div class="row detail-item">
                 <div class="col-md-3">
-                    <h5><strong>Marge Pourcentage (%):</strong></h5>
+                    <h5>Marge Pourcentage :</h5>
                 </div>
                 <div class="col-md-9">
-                    <p>{{ simulation.marge_pourcentage }}</p>
+                    <p>{{ simulation.marge_pourcentage }}%</p>
                 </div>
             </div>
             <div class="row detail-item">
                 <div class="col-md-3">
-                    <h5><strong>Pourcentage Banque (%):</strong></h5>
+                    <h5>Montant Marge :</h5>
                 </div>
                 <div class="col-md-9">
-                    <p>{{ simulation.pourcentage_banque }}</p>
+                    <p>{{ simulation.marge_montant }}FCFA</p>
                 </div>
             </div>
             <div class="row detail-item">
                 <div class="col-md-3">
-                    <h5><strong>Prix de Vente Total HT:</strong></h5>
+                    <h5>Prix Unitaire de Vente :</h5>
                 </div>
                 <div class="col-md-9">
-                    <p>{{ simulation.prix_vente_total_ht }}</p>
+                    <p>{{ simulation.prix_vente_total_ht }} FCFA</p>
+                </div>
+            </div>
+            <div class="row detail-item">
+                <div class="col-md-3">
+                    <h5>Prix de Revient :</h5>
+                </div>
+                <div class="col-md-9">
+                    <p>{{ simulation.prix_vente_total_ht_sans_isb }} FCFA</p>
+                </div>
+            </div>
+            <div class="row detail-item">
+                <div class="col-md-3">
+                    <h5>ISB :</h5>
+                </div>
+                <div class="col-md-9">
+                    <p>{{ simulation.isb }} FCFA</p>
+                </div>
+            </div>
+            <div class="row detail-item">
+                <div class="col-md-3">
+                    <h5>Total HT  :</h5>
+                </div>
+                <div class="col-md-9">
+                    <p>{{ simulation.prix_vente_total_ht_avec_isb }} FCFA</p>
                 </div>
             </div>
         </div>
@@ -91,6 +126,9 @@
             <a href="{% url 'edit_simulation' simulation.id_simulation %}" class="btn btn-warning">Éditer</a>
             <a href="{% url 'liste_simulations' %}" class="btn btn-secondary">Retour à la liste</a>
         </div>
+        <a href="{% url 'download_pdf' simulation.id_simulation %}" class="btn btn-primary">Télécharger en PDF</a>
+        <a href="{% url 'download_excel' simulation.id_simulation %}" class="btn btn-primary">Télécharger en Excel</a>
+
     </div>
 
 {% endblock %}

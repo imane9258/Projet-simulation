@@ -22,41 +22,41 @@
                     <h3 class="mb-0">  {{ simulation.designation }}</h3>
                 </div>
                 <div class="content">
-                    <p><strong>Prix d'Achat Unitaire:</strong> {{ simulation.prix|intspace }}</p>
-                    <p><strong>Quantité:</strong> {{ simulation.quantite|intspace }}</p>
-                    <p><strong>Prix Total Achat:</strong> {{ simulation.prix_total_achat|intspace }}</p>
-                    <p><strong>Frais Transit:</strong> {{ simulation.montant_transit|intspace }}</p>
-                    <p><strong>Frais Douane:</strong> {{ simulation.montant_douane|intspace }}</p>
-                    <p><strong>Pourcentage Banque:</strong> {{ simulation.pourcentage_banque|intspace }}</p>
-                    <p><strong>Montant Banque:</strong> {{ simulation.pourcentage_banque_montant|intspace }}</p>
-                    <p><strong>Marge Pourcentage:</strong> {{ simulation.marge_pourcentage|intspace }}</p>
-                    <p><strong>Montant Marge:</strong> {{ simulation.marge_montant|intspace }}</p>
-                    <p><strong>Prix Vente Unitaire:</strong> {{ simulation.prix_vente_total_ht|intspace }}</p>
-                    <p><strong>Prix de Revient :</strong> {{ simulation.prix_vente_total_ht_sans_isb|intspace }}</p>
-                    <p><strong>ISB:</strong> {{ simulation.isb|intspace}}</p>
-                    <p><strong>Total HT avec ISB:</strong> {{ simulation.prix_vente_total_ht_avec_isb|intspace }}</p>
+                    <p><strong>Prix d'Achat Unitaire:</strong> {{ simulation.prix|intspace }} FCFA</p>
+                    <p><strong>Quantité:</strong> {{ simulation.quantite|intspace }} FCFA</p>
+                    <p><strong>Prix Total Achat:</strong> {{ simulation.prix_total_achat|intspace }} FCFA</p>
+                    <p><strong>Frais Transit:</strong> {{ simulation.montant_transit|intspace }} FCFA</p>
+                    <p><strong>Frais Douane:</strong> {{ simulation.montant_douane|intspace }} FCFA</p>
+                    <p><strong>Pourcentage Banque:</strong> {{ simulation.pourcentage_banque|intspace }}%</p>
+                    <p><strong>Montant Banque:</strong> {{ simulation.pourcentage_banque_montant|intspace }} FCFA</p>
+                    <p><strong>Marge Pourcentage:</strong> {{ simulation.marge_pourcentage|intspace }}%</p>
+                    <p><strong>Montant Marge:</strong> {{ simulation.marge_montant|intspace }} FCFA</p>
+                    <p><strong>Prix Vente Unitaire:</strong> {{ simulation.prix_vente_total_ht|intspace }} FCFA</p>
+                    <p><strong>Prix de Revient :</strong> {{ simulation.prix_vente_total_ht_sans_isb|intspace }} FCFA</p>
+                    <p><strong>ISB:</strong> {{ simulation.isb|intspace}} FCFA</p>
+                    <p><strong>Total HT avec ISB:</strong> {{ simulation.prix_vente_total_ht_avec_isb|intspace }} FCFA</p>
                 </div>
             </div>
         {% endfor %}
     </div>
     <div class="totals mb-4 text-center">
         <div class="total-summary highlight">
-            <p>Marge Montant Total: <span>{{ marge_montant_total|intspace }}</span></p>
+            <p>Marge Montant Total: <span>{{ marge_montant_total|intspace }} FCFA</span></p>
         </div>
         <div class="total-summary highlight">
-            <p>Total Prix Revient: <span>{{ total_prix_revient|intspace }}</span></p>
+            <p>Total Prix Revient: <span>{{ total_prix_revient|intspace }} FCFA</span></p>
         </div>
         <div class="total-summary highlight">
-            <p>ISB: <span>{{ total_isb|intspace }}</span></p>
+            <p>ISB: <span>{{ total_isb|intspace }} FCFA</span></p>
         </div>
         <div class="total-summary highlight">
-            <p>Total HT du Devis: <span>{{ total_ht_devis|intspace }}</span></p>
+            <p>Total HT du Devis: <span>{{ total_ht_devis|intspace }} FCFA</span></p>
         </div>
         <div class="total-summary highlight">
-            <p>TVA: <span>{{ total_tva|intspace }}</span></p>
+            <p>TVA: <span>{{ total_tva|intspace }} FCFA</span></p>
         </div>
         <div class="total-summary highlight">
-            <p>Total TTC du Devis: <span>{{ total_ttc_devis|intspace }}</span></p>
+            <p>Total TTC du Devis: <span>{{ total_ttc_devis|intspace }} FCFA</span></p>
         </div>
         <div class="button-container text-center mt-4">
             <a href="{% url 'download_pdf' ids_simulation %}" class="btn-download"><i class="material-icons">picture_as_pdf</i> Télécharger PDF</a>

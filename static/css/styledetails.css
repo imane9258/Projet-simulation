@@ -38,3 +38,23 @@
 p {
     margin: 0;
 }
+
+/* Styling for download buttons */
+.btn-download {
+    display: inline-block;
+    margin-right: 10px;
+    padding: 8px 16px;
+    font-size: 18px;
+    text-align: center;
+    text-decoration: none;
+    background-color: #ffffff;
+    color: #000000;
+    border: #4CAF50;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Styling for icons within buttons */
+.btn-download i {
+    margin-right: 5px; /* Adjust margin as needed */
+}
