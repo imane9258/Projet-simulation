@@ -1,24 +1,93 @@
-{% extends 'base.html' %}
-
-{% block title %}accueil{% endblock %}
+{% extends "base.html" %}
 {% load static %}
-{% block extra_css %}
+{% load custom_filters %}
 
-<link rel="stylesheet" href="{% static 'css/.css' %}">
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/styleaccueil.css' %}">
 {% endblock %}
 
 {% block content %}
-<!-- Affichage des trois dernières simulations -->
-<div class="latest-simulations">
-    <h2>Dernières Simulations</h2>
-    <ul>
-        {% for simulation in dernieres_simulations %}
-            <li>
-                <h3>{{ simulation.titre }}</h3>
-               
-                <!-- Autres détails à afficher -->
-            </li>
-        {% endfor %}
-    </ul>
-</div>
+    <section id="dashboard" class="dashboard">
+        <div class="container-fluid">
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Statistiques Générales</h5>
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Nombre total de simulations :
+                                        <span class="badge bg-primary rounded-pill">{{ total_simulations }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Coût total :
+                                        <span class="badge bg-success rounded-pill">{{ total_investi|intspace }} FCFA</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Marge totale :
+                                        <span class="badge bg-info rounded-pill">{{ benefice|intspace }} FCFA</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>              
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Graphiques</h5>
+                                <canvas id="coutsGraph"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Dernières Simulations</h5>
+                                <ul class="list-group">
+                                    {% for simulation in dernieres_simulations %}
+                                        <li class="list-group-item">
+                                            <strong>{{ simulation.titre }}</strong> - 
+                                            Créé le : {{ simulation.date_creation|date:"d F Y H:i" }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <!-- Chargement de Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Initialisation du graphique
+        var ctx = document.getElementById('coutsGraph').getContext('2d');
+        var coutsGraph = new Chart(ctx, {
+            type: 'diagram',
+            data: {
+                labels: ['Simulation 1', 'Simulation 2', 'Simulation 3'], // Exemple de labels
+                datasets: [{
+                    label: 'Coût',
+                    data: [1200, 1900, 3000], // Exemple de données à remplacer par les vôtres
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 {% endblock %}

@@ -1,6 +1,7 @@
 <!-- rapports.html -->
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 {% block title %}Rapports{% endblock %}
 {% block extra_css%}
 <!-- Ajoutez ce lien dans le head de votre base.html ou rapports.html -->
@@ -16,14 +17,14 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <p><strong>Total des simulations:</strong> {{ total_simulations }}</p>
-                    <p><strong>Coût investi:</strong> {{ total_investi }}</p>
+                    <p><strong>Coût investi:</strong> {{ total_investi|intspace }} FCFA</p>
                 </div>
-                <div class="col-md-6">
-                    <p><strong>Benefice:</strong> {{ benefice }}</p>
-                    <p><strong>Coût moyen:</strong> {{ cout_moyen }}</p>
-                    <p><strong>Marge moyenne:</strong> {{ marge_moyenne }}</p>
+                <div class="col-md-12">
+                    <p><strong>Benefice:</strong> {{ benefice|intspace}} FCFA</p>
+                    <p><strong>Coût moyen:</strong> {{ cout_moyen|intspace }} FCFA</p>
+                    <p><strong>Marge moyenne:</strong> {{ marge_moyenne|intspace }} FCFA</p>
                 </div>
             </div>
         </div>

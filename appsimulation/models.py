@@ -50,5 +50,6 @@ class Simulation(models.Model):
     total_prix_revient = models.DecimalField(max_digits=12, decimal_places=2)
     total_isb = models.DecimalField(max_digits=12, decimal_places=2)
     total_tva = models.DecimalField(max_digits=12, decimal_places=2)
+    date_creation = models.DateTimeField(auto_now_add=True)
 
 
