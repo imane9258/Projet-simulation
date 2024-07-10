@@ -1,4 +1,3 @@
-<!-- edit_simulation.html -->
 {% extends 'base.html' %}
 
 {% block title %}Éditer la Simulation{% endblock %}
@@ -32,15 +31,17 @@
                     </tr>
                 </thead>
                 <tbody id="servicesTableBody">
-                    <tr id="row0">
-                        <td><input type="text" name="designation" value="{{ simulation.designation }}" autocomplete="off" required></td>
-                        <td><input type="text" name="quantite" value="{{ simulation.quantite }}" autocomplete="off" required></td>
-                        <td><input type="text" name="prix_unitaire" value="{{ simulation.prix }}" autocomplete="off" required></td>
-                        <td><input type="text" name="frais_transit" value="{{ simulation.montant_transit }}" autocomplete="off" required></td>
-                        <td><input type="text" name="frais_douane" value="{{ simulation.montant_douane }}" autocomplete="off" required></td>
-                        <td><input type="text" name="marge_percentage" value="{{ simulation.marge_pourcentage }}" autocomplete="off" required></td>
-                        <td><input type="text" name="pourcentage_banque" value="{{ simulation.pourcentage_banque }}" autocomplete="off" required></td>
+                    {% for line in simulations_grouped_by_title %}
+                    <tr>
+                        <td><input type="text" name="designation_{{ line.id_simulation }}" value="{{ line.designation }}" autocomplete="off" required></td>
+                        <td><input type="text" name="quantite_{{ line.id_simulation }}" value="{{ line.quantite }}" autocomplete="off" required></td>
+                        <td><input type="text" name="prix_unitaire_{{ line.id_simulation }}" value="{{ line.prix }}" autocomplete="off" required></td>
+                        <td><input type="text" name="frais_transit_{{ line.id_simulation }}" value="{{ line.montant_transit }}" autocomplete="off" required></td>
+                        <td><input type="text" name="frais_douane_{{ line.id_simulation }}" value="{{ line.montant_douane }}" autocomplete="off" required></td>
+                        <td><input type="text" name="marge_percentage_{{ line.id_simulation }}" value="{{ line.marge_pourcentage }}" autocomplete="off" required></td>
+                        <td><input type="text" name="pourcentage_banque_{{ line.id_simulation }}" value="{{ line.pourcentage_banque }}" autocomplete="off" required></td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

@@ -6,6 +6,32 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/styledetails.css' %}">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+    .btn-edit {
+        background-color: orange;
+        color: white;
+        padding: 8px 16px;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-right: 10px;
+    }
+
+    .btn-edit:hover {
+        background-color: darkorange;
+    }
+    .btn-download {
+        color: black;
+        text-decoration: none;
+        padding: 8px 16px;
+        margin-right: 10px;
+    }
+    .btn-download:hover {
+        color: orange;
+        text-decoration: none;
+        padding: 8px 16px;
+        margin-right: 10px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -93,6 +119,7 @@
     <div class="button-container text-center mt-4">
         <a href="{% url 'download_detail_pdf' id_simulation %}" class="btn-download"><i class="material-icons">picture_as_pdf</i> Télécharger PDF</a>
         <a href="{% url 'download_detail_excel' id_simulation %}" class="btn-download"><i class="material-icons">description</i> Télécharger Excel</a>
+        <a href="{% url 'edit_simulation' simulation.id_simulation %}" class="btn btn-edit">Éditer</a>
     </div>
     
 </div>

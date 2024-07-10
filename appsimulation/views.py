@@ -272,7 +272,7 @@ def download_pdf(request, ids_simulation):
     # Simulation Data
     for simulation in simulations:
         p.setFont("Helvetica-Bold", 12)
-        p.drawString(20 * mm, y_position, f"Désignation: {simulation.designation}")
+        p.drawString(30 * mm, y_position, f"Désignation: {simulation.designation}")
         y_position -= 10 * mm
 
         p.setFont("Helvetica", 10)
@@ -435,107 +435,99 @@ def detail_simulation(request, id_simulation):
     return render(request, 'detail_simulation.html', context)
 
 
-
 from decimal import Decimal, InvalidOperation
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Simulation
 
 def edit_simulation(request, id_simulation):
     simulation = get_object_or_404(Simulation, id_simulation=id_simulation)
+    simulations_grouped_by_title = Simulation.objects.filter(titre=simulation.titre)
 
     if request.method == 'POST':
-        # Récupérer les nouvelles valeurs depuis le formulaire
         titre = request.POST.get('titre')
-        designation = request.POST.get('designation')
-        quantite = request.POST.get('quantite')
-        prix_unitaire = request.POST.get('prix_unitaire')
-        frais_transit = request.POST.get('frais_transit')
-        frais_douane = request.POST.get('frais_douane')
-        marge_percentage = request.POST.get('marge_percentage')
-        pourcentage_banque = request.POST.get('pourcentage_banque')
-
-        # Ajout de prints pour vérifier les valeurs récupérées
-        print(f"titre: {titre}")
-        print(f"designation: {designation}")
-        print(f"quantite: {quantite}")
-        print(f"prix_unitaire: {prix_unitaire}")
-        print(f"frais_transit: {frais_transit}")
-        print(f"frais_douane: {frais_douane}")
-        print(f"marge_percentage: {marge_percentage}")
-        print(f"pourcentage_banque: {pourcentage_banque}")
-
-        # Remplacer les virgules par des points pour les valeurs numériques
-        quantite = quantite.replace(',', '.')
-        prix_unitaire = prix_unitaire.replace(',', '.')
-        frais_transit = frais_transit.replace(',', '.')
-        frais_douane = frais_douane.replace(',', '.')
-        marge_percentage = marge_percentage.replace(',', '.')
-        pourcentage_banque = pourcentage_banque.replace(',', '.')
-
-        # Convertir les valeurs récupérées en Decimal
-        try:
-            quantite = Decimal(quantite)
-            prix_unitaire = Decimal(prix_unitaire)
-            frais_transit = Decimal(frais_transit)
-            frais_douane = Decimal(frais_douane)
-            marge_percentage = Decimal(marge_percentage)
-            pourcentage_banque = Decimal(pourcentage_banque)
-        except InvalidOperation:
-            return render(request, 'edit_simulation.html', {
-                'simulation': simulation,
-                'error': 'Invalid input. Please enter valid numeric values.'
-            })
-
-        # Vérifier les valeurs pour éviter la division par zéro
-        if quantite == 0 or prix_unitaire == 0:
-            return render(request, 'edit_simulation.html', {
-                'simulation': simulation,
-                'error': 'Quantité et Prix Unitaire doivent être supérieurs à zéro.'
-            })
 
         try:
-            prix_total_achat = (quantite * prix_unitaire).quantize(Decimal('0.01'))
-            pourcentage_banque_montant = ((prix_total_achat * pourcentage_banque) / Decimal('100.00')).quantize(Decimal('0.01'))
-            prix_de_revient_total = (prix_total_achat + frais_transit + frais_douane + pourcentage_banque_montant).quantize(Decimal('0.01'))
-            marge_montant = ((prix_de_revient_total * marge_percentage) / Decimal('100.00')).quantize(Decimal('0.01'))
-            prix_vente_total_ht_sans_isb = (prix_de_revient_total + marge_montant).quantize(Decimal('0.01'))
-            prix_vente_total_ht_avec_isb = (prix_vente_total_ht_sans_isb / Decimal('0.98')).quantize(Decimal('0.01'))
-            isb_montant = (prix_vente_total_ht_avec_isb * Decimal('0.02')).quantize(Decimal('0.01'))
-            prix_vente_total_ht = (prix_vente_total_ht_avec_isb / quantite).quantize(Decimal('0.01'))
+            for line in simulations_grouped_by_title:
+                designation = request.POST.get(f'designation_{line.id_simulation}')
+                quantite = request.POST.get(f'quantite_{line.id_simulation}')
+                prix_unitaire = request.POST.get(f'prix_unitaire_{line.id_simulation}')
+                frais_transit = request.POST.get(f'frais_transit_{line.id_simulation}')
+                frais_douane = request.POST.get(f'frais_douane_{line.id_simulation}')
+                marge_percentage = request.POST.get(f'marge_percentage_{line.id_simulation}')
+                pourcentage_banque = request.POST.get(f'pourcentage_banque_{line.id_simulation}')
+
+                # Remplacer les virgules par des points pour les valeurs numériques
+                quantite = quantite.replace(',', '.')
+                prix_unitaire = prix_unitaire.replace(',', '.')
+                frais_transit = frais_transit.replace(',', '.')
+                frais_douane = frais_douane.replace(',', '.')
+                marge_percentage = marge_percentage.replace(',', '.')
+                pourcentage_banque = pourcentage_banque.replace(',', '.')
+
+                # Convertir les valeurs récupérées en Decimal
+                try:
+                    quantite = Decimal(quantite)
+                    prix_unitaire = Decimal(prix_unitaire)
+                    frais_transit = Decimal(frais_transit)
+                    frais_douane = Decimal(frais_douane)
+                    marge_percentage = Decimal(marge_percentage)
+                    pourcentage_banque = Decimal(pourcentage_banque)
+                except InvalidOperation:
+                    return render(request, 'edit_simulation.html', {
+                        'simulation': simulation,
+                        'simulations_grouped_by_title': simulations_grouped_by_title,
+                        'error': 'Invalid input. Please enter valid numeric values.'
+                    })
+
+                # Vérifier les valeurs pour éviter la division par zéro
+                if quantite == 0 or prix_unitaire == 0:
+                    return render(request, 'edit_simulation.html', {
+                        'simulation': simulation,
+                        'simulations_grouped_by_title': simulations_grouped_by_title,
+                        'error': 'Quantité et Prix Unitaire doivent être supérieurs à zéro.'
+                    })
+
+                prix_total_achat = (quantite * prix_unitaire).quantize(Decimal('0.01'))
+                pourcentage_banque_montant = ((prix_total_achat * pourcentage_banque) / Decimal('100.00')).quantize(Decimal('0.01'))
+                prix_de_revient_total = (prix_total_achat + frais_transit + frais_douane + pourcentage_banque_montant).quantize(Decimal('0.01'))
+                marge_montant = ((prix_de_revient_total * marge_percentage) / Decimal('100.00')).quantize(Decimal('0.01'))
+                prix_vente_total_ht_sans_isb = (prix_de_revient_total + marge_montant).quantize(Decimal('0.01'))
+                prix_vente_total_ht_avec_isb = (prix_vente_total_ht_sans_isb / Decimal('0.98')).quantize(Decimal('0.01'))
+                isb_montant = (prix_vente_total_ht_avec_isb * Decimal('0.02')).quantize(Decimal('0.01'))
+                prix_vente_total_ht = (prix_vente_total_ht_avec_isb / quantite).quantize(Decimal('0.01'))
+
+                # Mettre à jour l'objet simulation avec les nouvelles valeurs
+                line.titre = titre
+                line.designation = designation
+                line.quantite = quantite
+                line.prix = prix_unitaire
+                line.montant_transit = frais_transit
+                line.montant_douane = frais_douane
+                line.marge_pourcentage = marge_percentage
+                line.pourcentage_banque = pourcentage_banque
+                line.prix_total_achat = prix_total_achat
+                line.pourcentage_banque_montant = pourcentage_banque_montant
+                line.prix_de_revient_total = prix_de_revient_total
+                line.marge_montant = marge_montant
+                line.prix_vente_total_ht_sans_isb = prix_vente_total_ht_sans_isb
+                line.prix_vente_total_ht_avec_isb = prix_vente_total_ht_avec_isb
+                line.isb_montant = isb_montant
+                line.prix_vente_total_ht = prix_vente_total_ht
+
+                line.save()
+
         except InvalidOperation as e:
             return render(request, 'edit_simulation.html', {
                 'simulation': simulation,
+                'simulations_grouped_by_title': simulations_grouped_by_title,
                 'error': f'An error occurred during calculations: {e}'
             })
 
-        # Mettre à jour l'objet simulation avec les nouvelles valeurs
-        simulation.titre = titre
-        simulation.designation = designation
-        simulation.quantite = quantite
-        simulation.prix = prix_unitaire
-        simulation.montant_transit = frais_transit
-        simulation.montant_douane = frais_douane
-        simulation.marge_pourcentage = marge_percentage
-        simulation.pourcentage_banque = pourcentage_banque
-        simulation.prix_total_achat = prix_total_achat
-        simulation.pourcentage_banque_montant = pourcentage_banque_montant
-        simulation.prix_de_revient_total = prix_de_revient_total
-        simulation.marge_montant = marge_montant
-        simulation.prix_vente_total_ht_sans_isb = prix_vente_total_ht_sans_isb
-        simulation.prix_vente_total_ht_avec_isb = prix_vente_total_ht_avec_isb
-        simulation.isb_montant = isb_montant
-        simulation.prix_vente_total_ht = prix_vente_total_ht
-
-        print(f"Simulation mise à jour: {simulation.__dict__}")
-
-        simulation.save()
-
         return redirect('detail_simulation', id_simulation=simulation.id_simulation)
 
-    return render(request, 'edit_simulation.html', {'simulation': simulation})
+    return render(request, 'edit_simulation.html', {'simulation': simulation, 'simulations_grouped_by_title': simulations_grouped_by_title})
 
 
-   
 
 
 from django.shortcuts import render
@@ -568,10 +560,12 @@ from django.http import HttpResponse
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
-from reportlab.platypus import Table, TableStyle
+from reportlab.platypus import Table, TableStyle, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
 from .models import Simulation
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
+from django.db.models import Sum
 from reportlab.lib import colors
 
 @login_required
@@ -609,9 +603,10 @@ def download_detail_pdf(request, id_simulation):
     # Create Table Data
     data = []
     table_list = []  # To store each Table object
+    styles = getSampleStyleSheet()
     for line in simulations_grouped_by_title:
         data.append([
-            ("Désignation", line.designation),
+            ("Désignation", Paragraph(line.designation, styles['BodyText'])),
             ("Prix d'Achat Unitaire", f"{line.prix} FCFA"),
             ("Quantité", line.quantite),
             ("Prix Total Achat", f"{line.prix_total_achat} FCFA"),
@@ -643,22 +638,24 @@ def download_detail_pdf(request, id_simulation):
         ]))
 
         table.wrapOn(p, width, height)
-        table.drawOn(p, 10 * mm, table_start_y - table._height)  # Adjust as needed
+        if table_start_y - table._height < 20 * mm:  # Check if there's enough space on the page
+            p.showPage()  # Start a new page
+            table_start_y = height - 20 * mm  # Reset the table start position
 
-        # Add space between tables
+        table.drawOn(p, 10 * mm, table_start_y - table._height)  # Adjust as needed
         table_start_y -= table._height + 5 * mm  # Adjust as needed
-# Totals Section
+
+    # Totals Section
     p.setFont("Helvetica-Bold", 12)
     p.drawString(10 * mm, table_start_y - 5 * mm, "Totaux")
 
-     # Calcul des totaux pour les simulations avec le même titre
+    # Calcul des totaux pour les simulations avec le même titre
     marge_montant_total = simulations_grouped_by_title.aggregate(Sum('marge_montant'))['marge_montant__sum']
     total_prix_revient = simulations_grouped_by_title.aggregate(Sum('prix_de_revient_total'))['prix_de_revient_total__sum']
     total_isb = simulations_grouped_by_title.aggregate(Sum('isb'))['isb__sum']
     total_ht_devis = simulations_grouped_by_title.aggregate(Sum('prix_vente_total_ht_avec_isb'))['prix_vente_total_ht_avec_isb__sum']
     total_tva = (total_ht_devis * Decimal('0.19')).quantize(Decimal('0.01'))
     total_ttc_devis = (total_ht_devis + total_tva).quantize(Decimal('0.01'))
-
 
     # Draw Totals
     totals = [
@@ -675,6 +672,7 @@ def download_detail_pdf(request, id_simulation):
     for item in totals:
         p.drawString(40 * mm, table_start_y, f"{item[0]}: {item[1]}")
         table_start_y -= 5 * mm
+
     p.showPage()
     p.save()
 
@@ -683,6 +681,8 @@ def download_detail_pdf(request, id_simulation):
     buffer.close()
 
     return response
+
+
 
 
 import io
@@ -708,9 +708,9 @@ def download_detail_excel(request, id_simulation):
     wb = Workbook()
     ws = wb.active
 
-    # Header
+    # Header 
     headers = [
-        "Désignation", "Prix d'Achat Unitaire", "Quantité", "Prix Total Achat",
+        "Désignation", "Quantité", "Prix d'Achat Unitaire", "Prix Total Achat",
         "Frais Transit", "Frais Douane", "Pourcentage Banque", "Montant Banque",
         "Marge Pourcentage", "Montant Marge", "Prix Vente Unitaire", "Prix de Revient",
         "ISB", "Total HT avec ISB"
@@ -738,8 +738,9 @@ def download_detail_excel(request, id_simulation):
     for line in simulations_grouped_by_title:
         row = [
             line.designation,
-            format_number(line.prix),
             line.quantite,
+            format_number(line.prix),
+           
             format_number(line.prix_total_achat),
             format_number(line.montant_transit),
             format_number(line.montant_douane),
