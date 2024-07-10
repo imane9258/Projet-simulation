@@ -1,60 +1,48 @@
-/* styledetails.css */
-
-.container {
-    max-width: 900px;
-}
-
-.card {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.card-header {
-    background-color: #007bff;
-    color: #fff;
+.list-group-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+    margin-bottom: 10px;
     padding: 15px;
-    text-align: center;
+    transition: all 0.3s ease-in-out;
 }
 
-.card-body {
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.list-group-item .row {
+    margin-bottom: 10px;
+}
+
+.list-group-item strong {
+    color: #343a40;
+}
+
+.list-group-item-info {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+}
+
+.mb-2 {
+    margin-bottom: 10px;
+}
+
+h1, h5 {
+    color: #343a40;
+}
+
+.container-fluid {
     padding: 20px;
 }
 
-.card-footer {
-    background-color: #f8f9fa;
-    padding: 15px;
-}
-
-.detail-item {
-    padding: 10px 0;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.detail-item:last-child {
-    border-bottom: none;
-}
-
-
-
-p {
-    margin: 0;
-}
-
-/* Styling for download buttons */
-.btn-download {
-    display: inline-block;
-    margin-right: 10px;
-    padding: 8px 16px;
-    font-size: 18px;
+h1 {
+    margin-bottom: 20px;
     text-align: center;
-    text-decoration: none;
-    background-color: #ffffff;
-    color: #000000;
-    border: #4CAF50;
-    border-radius: 4px;
-    cursor: pointer;
 }
 
-/* Styling for icons within buttons */
-.btn-download i {
-    margin-right: 5px; /* Adjust margin as needed */
+@media (max-width: 768px) {
+    .row .col-md-6 {
+        margin-bottom: 15px;
+    }
 }

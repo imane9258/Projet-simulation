@@ -1,75 +1,99 @@
-<!-- detail_simulation.html -->
 {% extends "base.html" %}
-
+{% load custom_filters %}
 {% block title %}Détails de la Simulation{% endblock %}
 
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styledetails.css' %}">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-<h1>Détails de la Simulation: {{ simulation.titre }}</h1>
+<div class="container-fluid">
+    <h1 class="mt-4 text-center">Détails de la Simulation: {{ simulation.titre }}</h1>
 
-<table class="table table-striped table-hover">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Titre</th>
-      <th>Désignation</th>
-      <th>Quantité</th>
-      <th>Prix Unitaire (FCFA)</th>
-      <th>Prix Total d'Achat (FCFA)</th>
-      <th>Frais de Transit (FCFA)</th>
-      <th>Frais de Douane (FCFA)</th>
-      <th>Marge Pourcentage (%)</th>
-      <th>Pourcentage Banque (%)</th>
-      <th>Pourcentage Banque Montant (FCFA)</th>
-      <th>Prix de Revient Total (FCFA)</th>
-      <th>Marge Montant (FCFA)</th>
-      <th>ISB (FCFA)</th>
-      <th>Prix de Vente Total HT sans ISB (FCFA)</th>
-      <th>Prix de Vente Total HT avec ISB (FCFA)</th>
-      <th>Prix de Vente Total HT (FCFA)</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for line in lines %}
-    <tr>
-      <td>{{ line.id_simulation }}</td>
-      <td>{{ line.titre }}</td>
-      <td>{{ line.designation }}</td>
-      <td>{{ line.quantite }}</td>
-      <td>{{ line.prix }}</td>
-      <td>{{ line.prix_total_achat }}</td>
-      <td>{{ line.montant_transit }}</td>
-      <td>{{ line.montant_douane }}</td>
-      <td>{{ line.marge_pourcentage }}</td>
-      <td>{{ line.pourcentage_banque }}</td>
-      <td>{{ line.pourcentage_banque_montant }}</td>
-      <td>{{ line.prix_de_revient_total }}</td>
-      <td>{{ line.marge_montant }}</td>
-      <td>{{ line.isb }}</td>
-      <td>{{ line.prix_vente_total_ht_sans_isb }}</td>
-      <td>{{ line.prix_vente_total_ht_avec_isb }}</td>
-      <td>{{ line.prix_vente_total_ht }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-  <tfoot>
-    <tr>
-      <td colspan="3">Totaux:</td>
-      <td>{{ simulation.total_quantite }}</td>
-      <td></td>
-      <td>{{ simulation.total_prix_total_achat }}</td>
-      <td>{{ simulation.total_montant_transit }}</td>
-      <td>{{ simulation.total_montant_douane }}</td>
-      <td></td>
-      <td></td>
-      <td>{{ simulation.total_pourcentage_banque_montant }}</td>
-      <td>{{ simulation.total_prix_de_revient_total }}</td>
-      <td>{{ simulation.marge_montant_total }}</td>
-      <td>{{ simulation.total_isb }}</td>
-      <td>{{ simulation.total_prix_vente_total_ht_sans_isb }}</td>
-      <td>{{ simulation.total_ht_devis }}</td>
-      <td>{{ simulation.total_prix_vente_total_ht }}</td>
-    </tr>
-  </tfoot>
-</table>
+    <ul class="list-group list-group-flush">
+        {% for line in simulations_grouped_by_title %}
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <strong>Désignation:</strong> <span>{{ line.designation }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Quantité:</strong> <span>{{ line.quantite|intspace }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Prix Unitaire :</strong> <span>{{ line.prix|intspace }} FCFA</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Prix Total d'Achat :</strong> <span>{{ line.prix_total_achat|intspace }} FCFA</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Frais de Transit :</strong> <span>{{ line.montant_transit|intspace }} FCFA</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Frais de Douane :</strong> <span>{{ line.montant_douane|intspace }} FCFA</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Marge Pourcentage :</strong> <span>{{ line.marge_pourcentage|intspace }} %</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Marge Montant :</strong> <span>{{ line.marge_montant|intspace }} FCFA</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Pourcentage Banque :</strong> <span>{{ line.pourcentage_banque|intspace }} %</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Pourcentage Banque Montant :</strong> <span>{{ line.pourcentage_banque_montant|intspace }} FCFA</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <strong>Prix de Revient Total :</strong> <span>{{ line.prix_de_revient_total|intspace }} FCFA</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>ISB :</strong> <span>{{ line.isb|intspace }} FCFA</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Prix de Vente Total HT avec ISB :</strong> <span>{{ line.prix_vente_total_ht_avec_isb|intspace }} FCFA</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Prix Unitaire de Vente Total HT :</strong> <span>{{ line.prix_vente_total_ht|intspace }} FCFA</span>
+                    </div>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
 
+        <!-- Total des totaux du devis -->
+        <li class="list-group-item list-group-item-info">
+            <h5 class="mb-2">Totaux du Devis:</h5>
+            <div class="mb-2">
+                <strong>Marge Montant Total :</strong> <span>{{ marge_montant_total|intspace }} FCFA</span>
+            </div>
+            <div class="mb-2">
+                <strong>Total Prix de Revient :</strong> <span>{{ total_prix_revient|intspace }} FCFA</span>
+            </div>
+            <div class="mb-2">
+                <strong>Total ISB :</strong> <span>{{ total_isb|intspace }} FCFA</span>
+            </div>
+            <div class="mb-2">
+                <strong>Total HT avec ISB :</strong> <span>{{ total_ht_devis|intspace }} FCFA</span>
+            </div>
+            <div class="mb-2">
+                <strong>Total TVA :</strong> <span>{{ total_tva|intspace }} FCFA</span>
+            </div>
+            <div class="mb-2">
+                <strong>Total TTC Devis :</strong> <span>{{ total_ttc_devis|intspace }} FCFA</span>
+            </div>
+        </li>
+    </ul>
+
+    <div class="button-container text-center mt-4">
+        <a href="{% url 'download_detail_pdf' id_simulation %}" class="btn-download"><i class="material-icons">picture_as_pdf</i> Télécharger PDF</a>
+        <a href="{% url 'download_detail_excel' id_simulation %}" class="btn-download"><i class="material-icons">description</i> Télécharger Excel</a>
+    </div>
+    
+</div>
 {% endblock %}

@@ -12,5 +12,6 @@ urlpatterns = [
     path('rapports/', views.rapports, name='rapports'), 
     path('edit_simulation/<int:id_simulation>/', views.edit_simulation, name='edit_simulation'),
     path('detail_simulation/<int:id_simulation>/', views.detail_simulation, name='detail_simulation'),
-
+    path('download_detail_pdf/<int:id_simulation>/', views.download_detail_pdf, name='download_detail_pdf'),
+    path('download_detail_excel/<int:id_simulation>/', views.download_detail_excel, name='download_detail_excel'),
 ]
