@@ -7,10 +7,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/styleliste.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-
-
-
-
 {% endblock %}
 
 {% block content %}
@@ -20,25 +16,23 @@
   <thead>
     <tr>
       <th>Titre</th>
-      <th>Désignation</th>
+      <th>Prix Total avec ISB (FCFA)</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tbody>
-    {% for simulation in simulations %}
+    {% for title, group in grouped_simulations.items %}
     <tr>
-      <td>{{ simulation.titre }}</td>
-      <td>{{ simulation.designation }}</td>
+      <td>{{ title }}</td>
+      <td>{{ group.total_prix_avec_isb }}</td>
       <td>
-        <a href="{% url 'detail_simulation' simulation.id_simulation %}" class="btn btn-voir">
+        <a href="{% url 'detail_simulation' group.id_simulation %}" class="btn btn-voir">
             <i class="bi bi-eye"></i> Voir
         </a>
         
-        <a href="{% url 'edit_simulation' simulation.id_simulation %}" class="btn btn-editer">
+        <a href="{% url 'edit_simulation' group.id_simulation %}" class="btn btn-editer">
             <i class="bi bi-pencil"></i> Editer
         </a>
-        
-        
       </td>
     </tr>
     {% endfor %}

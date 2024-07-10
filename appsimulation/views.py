@@ -79,10 +79,25 @@ def accueil(request):
 
 @login_required
 def liste_simulations(request):
+    # Retrieve all simulations
     simulations = Simulation.objects.all()
+
+    # Group simulations by title
+    grouped_simulations = {}
+    for simulation in simulations:
+        if simulation.titre not in grouped_simulations:
+            grouped_simulations[simulation.titre] = {
+                'id_simulation': simulation.id_simulation,
+                'total_prix_avec_isb': 0,
+                'lines': []
+            }
+        grouped_simulations[simulation.titre]['total_prix_avec_isb'] += simulation.prix_vente_total_ht_avec_isb
+        grouped_simulations[simulation.titre]['lines'].append(simulation)
+
     context = {
-        'simulations': simulations,
+        'grouped_simulations': grouped_simulations
     }
+
     return render(request, 'liste_simulations.html', context)
 
 @login_required
@@ -386,15 +401,27 @@ from .models import Simulation
 from .forms import SimulationForm
 from .utils import recalculer_simulation
 
-@login_required
-def liste_simulations(request):
-    simulations = Simulation.objects.all()
-    return render(request, 'liste_simulations.html', {'simulations': simulations})
+
+
+
+
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import Simulation
 
 def detail_simulation(request, id_simulation):
+    # Get the simulation by ID
     simulation = get_object_or_404(Simulation, id_simulation=id_simulation)
-    print(f"Simulation détails: {simulation.__dict__}")
-    return render(request, 'detail_simulation.html', {'simulation': simulation})
+    # Get all simulations with the same title
+    lines = Simulation.objects.filter(titre=simulation.titre)
+
+    context = {
+        'simulation': simulation,
+        'lines': lines
+    }
+
+    return render(request, 'detail_simulation.html', context)
 
 
 from decimal import Decimal, InvalidOperation
