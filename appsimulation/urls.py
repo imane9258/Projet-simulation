@@ -11,6 +11,6 @@ urlpatterns = [
     path('liste_simulations/', views.liste_simulations, name='liste_simulations'),
     path('rapports/', views.rapports, name='rapports'), 
     path('edit_simulation/<int:id_simulation>/', views.edit_simulation, name='edit_simulation'),
-    path('detail_simulation/<int:simulation_id>/', views.detail_simulation, name='detail_simulation'),
+    path('detail_simulation/<int:id_simulation>/', views.detail_simulation, name='detail_simulation'),
 
 ]

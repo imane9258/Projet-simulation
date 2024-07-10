@@ -3,91 +3,99 @@
 {% load custom_filters %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/styleaccueil.css' %}">
+<link rel="stylesheet" href="{% static 'css/styleaccueil.css' %}">
 {% endblock %}
 
 {% block content %}
-    <section id="dashboard" class="dashboard">
-        <div class="container-fluid">
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Statistiques Générales</h5>
-                                <ul class="list-group">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Nombre total de simulations :
-                                        <span class="badge bg-primary rounded-pill">{{ total_simulations }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Coût total :
-                                        <span class="badge bg-success rounded-pill">{{ total_investi|intspace }} FCFA</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Marge totale :
-                                        <span class="badge bg-info rounded-pill">{{ benefice|intspace }} FCFA</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>              
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Graphiques</h5>
-                                <canvas id="coutsGraph"></canvas>
-                            </div>
+<section id="dashboard" class="dashboard">
+    <div class="container-fluid">
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Statistiques Générales</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Nombre total de simulations :
+                                    <span class="badge bg-primary rounded-pill">{{ total_simulations }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Coût total :
+                                    <span class="badge bg-success rounded-pill">{{ total_investi|intspace }} FCFA</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Marge totale :
+                                    <span class="badge bg-info rounded-pill">{{ benefice|intspace }} FCFA</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>              
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Graphiques</h5>
+                            <form method="GET" action="">
+                                <div class="form-group">
+                                    <label for="periodSelect">Choisir la période :</label>
+                                    <select id="periodSelect" name="period" class="form-select" onchange="this.form.submit()">
+                                        <option value="day" {% if selected_period == 'day' %}selected{% endif %}>Jour</option>
+                                        <option value="month" {% if selected_period == 'month' %}selected{% endif %}>Mois</option>
+                                    </select>
+                                </div>
+                            </form>
+                            <canvas id="beneficeGraph"></canvas>
                         </div>
                     </div>
                 </div>
-                
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Dernières Simulations</h5>
-                                <ul class="list-group">
-                                    {% for simulation in dernieres_simulations %}
-                                        <li class="list-group-item">
-                                            <strong>{{ simulation.titre }}</strong> - 
-                                            Créé le : {{ simulation.date_creation|date:"d F Y H:i" }}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </section>
+            </div>
 
-    <!-- Chargement de Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Initialisation du graphique
-        var ctx = document.getElementById('coutsGraph').getContext('2d');
-        var coutsGraph = new Chart(ctx, {
-            type: 'diagram',
-            data: {
-                labels: ['Simulation 1', 'Simulation 2', 'Simulation 3'], // Exemple de labels
-                datasets: [{
-                    label: 'Coût',
-                    data: [1200, 1900, 3000], // Exemple de données à remplacer par les vôtres
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Dernières Simulations</h5>
+                            <ul class="list-group">
+                                {% for simulation in dernieres_simulations %}
+                                <li class="list-group-item">
+                                    <strong>{{ simulation.titre }}</strong> -
+                                    Créé le : {{ simulation.date_creation|date:"d F Y H:i" }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</section>
+
+<!-- Chargement de Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('beneficeGraph').getContext('2d');
+    var beneficeGraph = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ dates_benefice|safe }},
+            datasets: [{
+                label: 'Bénéfice',
+                data: {{ data_benefice|safe }},
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
-    </script>
+        }
+    });
+</script>
 {% endblock %}

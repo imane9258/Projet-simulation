@@ -23,24 +23,56 @@ def connexion(request):
     return render(request, 'connexion.html')
 
 
+from django.shortcuts import render
+from django.db.models import Sum
+from django.utils.timezone import now
+from datetime import date
+import json
+from .models import Simulation
+from decimal import Decimal
+
+def get_week_number(date):
+    return date.strftime("%U")
+
+def get_week_start_date(week_number, year):
+    return date.fromisocalendar(year, week_number, 1)
+
 def accueil(request):
+    total_simulations = Simulation.objects.count()
+    total_investi = Simulation.objects.aggregate(Sum('total_prix_revient'))['total_prix_revient__sum']
+    benefice = Simulation.objects.aggregate(Sum('marge_montant'))['marge_montant__sum']
+    dernieres_simulations = Simulation.objects.order_by('-date_creation')[:5]
+
+    # Calcul des bénéfices hebdomadaires
+    current_year = now().year
+    weekly_benefits = {}
     simulations = Simulation.objects.all()
 
-    # Récupérer les trois dernières simulations triées par date de création
-    dernieres_simulations = Simulation.objects.order_by('-date_creation')[:3]
-     
-    # Calculer les statistiques
-    total_simulations = simulations.count()
-    total_investi = simulations.aggregate(total=Sum('total_prix_revient'))['total']
-    benefice = simulations.aggregate(total=Sum('marge_montant'))['total']
+    for simulation in simulations:
+        week = get_week_number(simulation.date_creation)
+        year = simulation.date_creation.year
+        if year == current_year:
+            key = f"{year}-W{week}"
+            if key not in weekly_benefits:
+                weekly_benefits[key] = Decimal(0)
+            weekly_benefits[key] += simulation.marge_montant
+
+    # Préparer les données pour le graphique
+    sorted_weeks = sorted(weekly_benefits.keys())
+    dates_benefice = [get_week_start_date(int(week.split('-W')[1]), int(week.split('-W')[0])).strftime("%Y-%m-%d") for week in sorted_weeks]
+    data_benefice = [float(weekly_benefits[week]) for week in sorted_weeks]  # Convert Decimal to float
+
     context = {
-        'dernieres_simulations': dernieres_simulations,
         'total_simulations': total_simulations,
         'total_investi': total_investi,
         'benefice': benefice,
         'dernieres_simulations': dernieres_simulations,
+        'dates_benefice': json.dumps(dates_benefice),
+        'data_benefice': json.dumps(data_benefice)
     }
     return render(request, 'accueil.html', context)
+
+
 
 
 
@@ -359,40 +391,49 @@ def liste_simulations(request):
     simulations = Simulation.objects.all()
     return render(request, 'liste_simulations.html', {'simulations': simulations})
 
-from django.shortcuts import render, get_object_or_404
-from .models import Simulation
+def detail_simulation(request, id_simulation):
+    simulation = get_object_or_404(Simulation, id_simulation=id_simulation)
+    print(f"Simulation détails: {simulation.__dict__}")
+    return render(request, 'detail_simulation.html', {'simulation': simulation})
 
-def detail_simulation(request, simulation_id):
-    simulation = get_object_or_404(Simulation, id_simulation=simulation_id)
-    context = {
-        'simulation': simulation
-    }
-    return render(request, 'detail_simulation.html', context)
-# views.py
+
+from decimal import Decimal, InvalidOperation
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Simulation
-from decimal import Decimal
-
-from decimal import Decimal, InvalidOperation
-
-from decimal import Decimal, InvalidOperation
-from django.shortcuts import render, redirect, get_object_or_404
 from .models import Simulation
 
 def edit_simulation(request, id_simulation):
     simulation = get_object_or_404(Simulation, id_simulation=id_simulation)
 
     if request.method == 'POST':
-        titre = request.POST.get('titre', '')
-        designation = request.POST.get('designation', '')
-        quantite = request.POST.get('quantite', '0')
-        prix_unitaire = request.POST.get('prix_unitaire', '0')
-        frais_transit = request.POST.get('frais_transit', '0')
-        frais_douane = request.POST.get('frais_douane', '0')
-        marge_percentage = request.POST.get('marge_percentage', '0')
-        pourcentage_banque = request.POST.get('pourcentage_banque', '0')
+        # Récupérer les nouvelles valeurs depuis le formulaire
+        titre = request.POST.get('titre')
+        designation = request.POST.get('designation')
+        quantite = request.POST.get('quantite')
+        prix_unitaire = request.POST.get('prix_unitaire')
+        frais_transit = request.POST.get('frais_transit')
+        frais_douane = request.POST.get('frais_douane')
+        marge_percentage = request.POST.get('marge_percentage')
+        pourcentage_banque = request.POST.get('pourcentage_banque')
 
-        # Ensure that numeric values are properly converted to Decimal
+        # Ajout de prints pour vérifier les valeurs récupérées
+        print(f"titre: {titre}")
+        print(f"designation: {designation}")
+        print(f"quantite: {quantite}")
+        print(f"prix_unitaire: {prix_unitaire}")
+        print(f"frais_transit: {frais_transit}")
+        print(f"frais_douane: {frais_douane}")
+        print(f"marge_percentage: {marge_percentage}")
+        print(f"pourcentage_banque: {pourcentage_banque}")
+
+        # Remplacer les virgules par des points pour les valeurs numériques
+        quantite = quantite.replace(',', '.')
+        prix_unitaire = prix_unitaire.replace(',', '.')
+        frais_transit = frais_transit.replace(',', '.')
+        frais_douane = frais_douane.replace(',', '.')
+        marge_percentage = marge_percentage.replace(',', '.')
+        pourcentage_banque = pourcentage_banque.replace(',', '.')
+
+        # Convertir les valeurs récupérées en Decimal
         try:
             quantite = Decimal(quantite)
             prix_unitaire = Decimal(prix_unitaire)
@@ -400,26 +441,35 @@ def edit_simulation(request, id_simulation):
             frais_douane = Decimal(frais_douane)
             marge_percentage = Decimal(marge_percentage)
             pourcentage_banque = Decimal(pourcentage_banque)
-        except (InvalidOperation, ValueError):
-            # Handle invalid input values
-            quantite = Decimal('0')
-            prix_unitaire = Decimal('0')
-            frais_transit = Decimal('0')
-            frais_douane = Decimal('0')
-            marge_percentage = Decimal('0')
-            pourcentage_banque = Decimal('0')
+        except InvalidOperation:
+            return render(request, 'edit_simulation.html', {
+                'simulation': simulation,
+                'error': 'Invalid input. Please enter valid numeric values.'
+            })
 
-        # Perform calculations
-        prix_total_achat = (quantite * prix_unitaire).quantize(Decimal('0.01'))
-        pourcentage_banque_montant = ((prix_total_achat * pourcentage_banque) / Decimal('100.00')).quantize(Decimal('0.01'))
-        prix_de_revient_total = (prix_total_achat + frais_transit + frais_douane + pourcentage_banque_montant).quantize(Decimal('0.01'))
-        marge_montant = ((prix_de_revient_total * marge_percentage) / Decimal('100.00')).quantize(Decimal('0.01'))
-        prix_vente_total_ht_sans_isb = (prix_de_revient_total + marge_montant).quantize(Decimal('0.01'))
-        prix_vente_total_ht_avec_isb = (prix_vente_total_ht_sans_isb / Decimal('0.98')).quantize(Decimal('0.01'))
-        isb_montant = (prix_vente_total_ht_avec_isb * Decimal('0.02')).quantize(Decimal('0.01'))
-        prix_vente_total_ht = (prix_vente_total_ht_avec_isb / quantite).quantize(Decimal('0.01'))
+        # Vérifier les valeurs pour éviter la division par zéro
+        if quantite == 0 or prix_unitaire == 0:
+            return render(request, 'edit_simulation.html', {
+                'simulation': simulation,
+                'error': 'Quantité et Prix Unitaire doivent être supérieurs à zéro.'
+            })
 
-        # Update simulation object with new values
+        try:
+            prix_total_achat = (quantite * prix_unitaire).quantize(Decimal('0.01'))
+            pourcentage_banque_montant = ((prix_total_achat * pourcentage_banque) / Decimal('100.00')).quantize(Decimal('0.01'))
+            prix_de_revient_total = (prix_total_achat + frais_transit + frais_douane + pourcentage_banque_montant).quantize(Decimal('0.01'))
+            marge_montant = ((prix_de_revient_total * marge_percentage) / Decimal('100.00')).quantize(Decimal('0.01'))
+            prix_vente_total_ht_sans_isb = (prix_de_revient_total + marge_montant).quantize(Decimal('0.01'))
+            prix_vente_total_ht_avec_isb = (prix_vente_total_ht_sans_isb / Decimal('0.98')).quantize(Decimal('0.01'))
+            isb_montant = (prix_vente_total_ht_avec_isb * Decimal('0.02')).quantize(Decimal('0.01'))
+            prix_vente_total_ht = (prix_vente_total_ht_avec_isb / quantite).quantize(Decimal('0.01'))
+        except InvalidOperation as e:
+            return render(request, 'edit_simulation.html', {
+                'simulation': simulation,
+                'error': f'An error occurred during calculations: {e}'
+            })
+
+        # Mettre à jour l'objet simulation avec les nouvelles valeurs
         simulation.titre = titre
         simulation.designation = designation
         simulation.quantite = quantite
@@ -437,16 +487,17 @@ def edit_simulation(request, id_simulation):
         simulation.isb_montant = isb_montant
         simulation.prix_vente_total_ht = prix_vente_total_ht
 
+        print(f"Simulation mise à jour: {simulation.__dict__}")
+
         simulation.save()
 
-        return redirect('detail_simulation', simulation_id=simulation.id_simulation)
+        return redirect('detail_simulation', id_simulation=simulation.id_simulation)
 
     return render(request, 'edit_simulation.html', {'simulation': simulation})
 
 
+   
 
-
-# views.py
 
 from django.shortcuts import render
 from .models import Simulation
