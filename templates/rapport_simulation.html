@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Rapport Simulation
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Rapport de Simulation</h1>
+
+    <!-- Liens ou boutons pour choisir la période -->
+    <div class="mt-4 mb-4">
+        <a href="{% url 'rapport_simulation' %}?periode=jour" class="btn btn-primary">Simulations du jour</a>
+        <a href="{% url 'rapport_simulation' %}?periode=mois" class="btn btn-primary">Simulations du mois</a>
+        <a href="{% url 'rapport_simulation' %}?periode=annee" class="btn btn-primary">Simulations de l'année</a>
+    </div>
+
+    <!-- Conteneur pour afficher les résultats -->
+    <div id="resultsContainer">
+        {% if simulations %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Titre</th>
+                        <th>Total TTC</th>
+                        <th>Total Marge</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for simulation in simulations %}
+                        <tr>
+                            <td>{{ simulation.titre }}</td>
+                            <td>{{ simulation.total_ttc_devis }}</td>
+                            <td>{{ simulation.marge_montant_total }}</td>
+                            <td>
+                                <a href="{% url 'detail_simulation' simulation.id_simulation %}" class="btn btn-voir">
+                                    <i class="bi bi-eye"></i> Voir
+                                </a>
+                                
+                                <a href="{% url 'edit_simulation' simulation.id_simulation %}" class="btn btn-editer">
+                                    <i class="bi bi-pencil"></i> Editer
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h3>Résumé Global</h3>
+            <p>Total TTC pour la période : {{ total_ttc }}</p>
+            <p>Total Marge pour la période : {{ total_marge }}</p>
+
+            <a href="{% url 'accueil' %}" class="btn btn-secondary">Retour à l'accueil</a>
+        {% else %}
+            <p>Aucune simulation trouvée pour cette période.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

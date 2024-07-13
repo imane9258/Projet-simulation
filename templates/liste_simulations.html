@@ -21,20 +21,22 @@
     </tr>
   </thead>
   <tbody>
-    {% for title, group in grouped_simulations.items %}
-    <tr>
-      <td>{{ title }}</td>
-      <td>{{ group.total_prix_avec_isb }}</td>
-      <td>
-        <a href="{% url 'detail_simulation' group.id_simulation %}" class="btn btn-voir">
-            <i class="bi bi-eye"></i> Voir
-        </a>
-        
-        <a href="{% url 'edit_simulation' group.id_simulation %}" class="btn btn-editer">
-            <i class="bi bi-pencil"></i> Editer
-        </a>
-      </td>
-    </tr>
+    {% for date_creation, group in grouped_simulations.items %}
+      {% for simulation in group.lines %}
+        <tr>
+          <td>{{ simulation.titre }}</td>
+          <td>{{ group.total_prix_avec_isb }}</td>
+          <td>
+            <a href="{% url 'detail_simulation' simulation.id_simulation %}" class="btn btn-voir">
+                <i class="bi bi-eye"></i> Voir
+            </a>
+            
+            <a href="{% url 'edit_simulation' simulation.id_simulation %}" class="btn btn-editer">
+                <i class="bi bi-pencil"></i> Editer
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
     {% endfor %}
   </tbody>
 </table>

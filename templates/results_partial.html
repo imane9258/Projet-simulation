@@ -1,0 +1,31 @@
+{% if simulations %}
+    <h2>Simulations pour la période sélectionnée</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Total TTC</th>
+                <th>Date de Création</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for simulation in simulations_grouped_by_title_and_date %}
+                <tr>
+                    <td>
+                        <a href="{% url 'detail_simulation' simulation.id_simulation %}">{{ simulation.titre }}</a>
+                    </td>
+                    <td>{{ simulation.total_ttc }}</td>
+                    <td>{{ simulation.date_creation }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Résumé Global</h3>
+    <p>Total TTC pour la période : {{ total_ttc }}</p>
+    <p>Total Marge pour la période : {{ total_marge }}</p>
+
+    <a href="{% url 'accueil' %}" class="btn btn-secondary">Retour à l'accueil</a>
+{% else %}
+    <p>Aucune simulation trouvée pour cette période.</p>
+{% endif %}

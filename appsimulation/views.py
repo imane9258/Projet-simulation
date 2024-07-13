@@ -73,10 +73,6 @@ def accueil(request):
     return render(request, 'accueil.html', context)
 
 
-
-
-
-
 @login_required
 def liste_simulations(request):
     # Retrieve all simulations
@@ -86,25 +82,19 @@ def liste_simulations(request):
     grouped_simulations = {}
     for simulation in simulations:
         if simulation.titre not in grouped_simulations:
-            grouped_simulations[simulation.titre] = {
+            grouped_simulations[simulation.date_creation] = {
                 'id_simulation': simulation.id_simulation,
                 'total_prix_avec_isb': 0,
                 'lines': []
             }
-        grouped_simulations[simulation.titre]['total_prix_avec_isb'] += simulation.prix_vente_total_ht_avec_isb
-        grouped_simulations[simulation.titre]['lines'].append(simulation)
+        grouped_simulations[simulation.date_creation]['total_prix_avec_isb'] += simulation.prix_vente_total_ht_avec_isb
+        grouped_simulations[simulation.date_creation]['lines'].append(simulation)
 
     context = {
         'grouped_simulations': grouped_simulations
     }
 
     return render(request, 'liste_simulations.html', context)
-
-@login_required
-def rapports(request):
-    return render(request, 'rapports.html')
-
-
 
 
 from decimal import Decimal
@@ -411,7 +401,10 @@ from .models import Simulation
 
 def detail_simulation(request, id_simulation):
     simulation = get_object_or_404(Simulation, id_simulation=id_simulation)
-    simulations_grouped_by_title = Simulation.objects.filter(titre=simulation.titre)
+
+    simulations_grouped_by_title = Simulation.objects.filter(date_creation=simulation.date_creation)
+    
+   
 
     # Calcul des totaux pour les simulations avec le même titre
     marge_montant_total = simulations_grouped_by_title.aggregate(Sum('marge_montant'))['marge_montant__sum']
@@ -431,6 +424,7 @@ def detail_simulation(request, id_simulation):
         'total_ht_devis': total_ht_devis,
         'total_tva': total_tva,
         'total_ttc_devis': total_ttc_devis,
+       
     }
     return render(request, 'detail_simulation.html', context)
 
@@ -526,36 +520,49 @@ def edit_simulation(request, id_simulation):
         return redirect('detail_simulation', id_simulation=simulation.id_simulation)
 
     return render(request, 'edit_simulation.html', {'simulation': simulation, 'simulations_grouped_by_title': simulations_grouped_by_title})
-
-
-
-
 from django.shortcuts import render
+from django.db.models import Sum
 from .models import Simulation
-from django.db.models import Sum, Avg, Count
+from datetime import datetime, timedelta
+from django.utils.timezone import now
+@login_required
+def rapport_simulation(request):
+    periode = request.GET.get('periode')
 
-def rapports(request):
-    simulations = Simulation.objects.all()
+    # Initialisation des simulations en fonction de la période choisie
+    simulations = Simulation.objects.none()
+    date_debut = None
+    date_fin = None
 
-    # Calculer les statistiques
-    total_simulations = simulations.count()
-    total_investi = simulations.aggregate(total=Sum('total_prix_revient'))['total']
-    benefice = simulations.aggregate(total=Sum('marge_montant'))['total']
-    cout_moyen = simulations.aggregate(avg=Avg('total_prix_revient'))['avg']
-    marge_moyenne = simulations.aggregate(avg=Avg('marge_montant'))['avg']
+    if periode == 'jour':
+        date_debut = now().date()
+        date_fin = date_debut + timedelta(days=1)
+    elif periode == 'mois':
+        date_debut = now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        next_month = date_debut.month + 1 if date_debut.month < 12 else 1
+        next_year = date_debut.year if next_month != 1 else date_debut.year + 1
+        date_fin = date_debut.replace(month=next_month, year=next_year)
+    elif periode == 'annee':
+        date_debut = now().replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        date_fin = date_debut.replace(year=date_debut.year + 1)
+
+    if date_debut and date_fin:
+        simulations = Simulation.objects.filter(date_creation__range=[date_debut, date_fin])
+
+    # Calcul des totaux pour la période choisie
+    total_ttc = simulations.aggregate(total_ttc=Sum('total_ttc_devis'))['total_ttc'] or 0
+    total_marge = simulations.aggregate(total_marge=Sum('marge_montant_total'))['total_marge'] or 0
 
     context = {
         'simulations': simulations,
-        'total_simulations': total_simulations,
-        'total_investi': total_investi,
-        'benefice': benefice,
-        'cout_moyen': cout_moyen,
-        'marge_moyenne': marge_moyenne,
+        'total_ttc': total_ttc,
+        'total_marge': total_marge,
+        'periode': periode,
     }
-    
-    return render(request, 'rapports.html', context)
 
-import io
+    return render(request, 'rapport_simulation.html', context)
+
+
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
