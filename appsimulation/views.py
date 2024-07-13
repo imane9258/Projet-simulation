@@ -23,13 +23,13 @@ def connexion(request):
     return render(request, 'connexion.html')
 
 
-from django.shortcuts import render
-from django.db.models import Sum
-from django.utils.timezone import now
 from datetime import date
-import json
-from .models import Simulation
 from decimal import Decimal
+import json
+from django.shortcuts import render
+from django.utils.timezone import now
+from django.db.models import Sum, Max
+from .models import Simulation
 
 def get_week_number(date):
     return date.strftime("%U")
@@ -41,7 +41,16 @@ def accueil(request):
     total_simulations = Simulation.objects.count()
     total_investi = Simulation.objects.aggregate(Sum('total_prix_revient'))['total_prix_revient__sum']
     benefice = Simulation.objects.aggregate(Sum('marge_montant'))['marge_montant__sum']
-    dernieres_simulations = Simulation.objects.order_by('-date_creation')[:5]
+    
+    # Récupérer les dernières simulations par titre
+    dernieres_simulations = Simulation.objects.values('titre').annotate(max_date=Max('date_creation')).order_by('-max_date')[:3]
+
+    # Regrouper les simulations par titre
+    simulations_grouped = {}
+    for simulation in dernieres_simulations:
+        titre = simulation['titre']
+        details = Simulation.objects.filter(titre=titre).order_by('-date_creation')
+        simulations_grouped[titre] = {'details': details}
 
     # Calcul des bénéfices hebdomadaires
     current_year = now().year
@@ -66,12 +75,11 @@ def accueil(request):
         'total_simulations': total_simulations,
         'total_investi': total_investi,
         'benefice': benefice,
-        'dernieres_simulations': dernieres_simulations,
+        'simulations_grouped': simulations_grouped,
         'dates_benefice': json.dumps(dates_benefice),
         'data_benefice': json.dumps(data_benefice)
     }
     return render(request, 'accueil.html', context)
-
 
 @login_required
 def liste_simulations(request):
@@ -523,13 +531,12 @@ def edit_simulation(request, id_simulation):
 from django.shortcuts import render
 from django.db.models import Sum
 from .models import Simulation
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.utils.timezone import now
-@login_required
+
 def rapport_simulation(request):
     periode = request.GET.get('periode')
 
-    # Initialisation des simulations en fonction de la période choisie
     simulations = Simulation.objects.none()
     date_debut = None
     date_fin = None
@@ -549,15 +556,24 @@ def rapport_simulation(request):
     if date_debut and date_fin:
         simulations = Simulation.objects.filter(date_creation__range=[date_debut, date_fin])
 
-    # Calcul des totaux pour la période choisie
-    total_ttc = simulations.aggregate(total_ttc=Sum('total_ttc_devis'))['total_ttc'] or 0
-    total_marge = simulations.aggregate(total_marge=Sum('marge_montant_total'))['total_marge'] or 0
+    grouped_simulations = {}
+    for simulation in simulations:
+        key = (simulation.titre, simulation.date_creation.strftime("%Y-%m-%d %H:%M"))
+        if key not in grouped_simulations:
+            grouped_simulations[key] = {
+                'titre': simulation.titre,
+                'date_creation': simulation.date_creation,
+                'total_ttc': 0,
+                'total_marge': 0,
+                'simulations': []
+            }
+        grouped_simulations[key]['total_ttc'] += simulation.total_ttc_devis
+        grouped_simulations[key]['total_marge'] += simulation.marge_montant_total
+        grouped_simulations[key]['simulations'].append(simulation)
 
     context = {
-        'simulations': simulations,
-        'total_ttc': total_ttc,
-        'total_marge': total_marge,
-        'periode': periode,
+        
+        'grouped_simulations': grouped_simulations.values(),
     }
 
     return render(request, 'rapport_simulation.html', context)

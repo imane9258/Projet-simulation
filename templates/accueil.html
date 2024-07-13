@@ -4,71 +4,103 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/styleaccueil.css' %}">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <section id="dashboard" class="dashboard">
     <div class="container-fluid">
         <!-- Main content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Statistiques Générales</h5>
-                            <ul class="list-group">
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Nombre total de simulations :
-                                    <span class="badge bg-primary rounded-pill">{{ total_simulations }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Coût total :
-                                    <span class="badge bg-success rounded-pill">{{ total_investi|intspace }} FCFA</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Marge totale :
-                                    <span class="badge bg-info rounded-pill">{{ benefice|intspace }} FCFA</span>
-                                </li>
-                            </ul>
+        <main class="row px-md-4">
+            <div class="col-md-4">
+                <div class="card stats-card bg-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title">Total Simulations</h5>
+                                <p class="stats-number">{{ total_simulations }}</p>
+                            </div>
+                            <div class="stats-icon bg-white">
+                                <i class="material-icons">insert_chart</i>
+                            </div>
                         </div>
-                    </div>              
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Graphiques</h5>
-                            <form method="GET" action="">
-                                <div class="form-group">
-                                    <label for="periodSelect">Choisir la période :</label>
-                                    <select id="periodSelect" name="period" class="form-select" onchange="this.form.submit()">
-                                        <option value="day" {% if selected_period == 'day' %}selected{% endif %}>Jour</option>
-                                        <option value="month" {% if selected_period == 'month' %}selected{% endif %}>Mois</option>
-                                    </select>
-                                </div>
-                            </form>
+            </div>
+            <div class="col-md-4">
+                <div class="card stats-card bg-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title">Total Investi</h5>
+                                <p class="stats-number">{{ total_investi|intspace }} FCFA</p>
+                            </div>
+                            <div class="stats-icon bg-white">
+                                <i class="material-icons">attach_money</i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stats-card bg-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title">Marge Totale</h5>
+                                <p class="stats-number">{{ benefice|intspace }} FCFA</p>
+                            </div>
+                            <div class="stats-icon bg-white">
+                                <i class="material-icons">trending_up</i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Dernières Simulations</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for titre, group in simulations_grouped.items %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ titre }}</strong> -
+                                Créé le : {{ group.details.0.date_creation|date:"d F Y H:i" }}
+                            </div>
+                            <div>
+                                <a href="{% url 'detail_simulation' group.details.0.id_simulation %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="material-icons">arrow_right_alt</i>
+                                </a>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Graphiques</h5>
+                        <form method="GET" action="">
+                            <div class="form-group">
+                                <label for="periodSelect">Choisir la période :</label>
+                                <select id="periodSelect" name="period" class="form-select" onchange="this.form.submit()">
+                                    <option value="day" {% if selected_period == 'day' %}selected{% endif %}>Jour</option>
+                                    <option value="month" {% if selected_period == 'month' %}selected{% endif %}>Mois</option>
+                                </select>
+                            </div>
+                        </form>
+                        <div class="chart-container mt-3">
                             <canvas id="beneficeGraph"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Dernières Simulations</h5>
-                            <ul class="list-group">
-                                {% for simulation in dernieres_simulations %}
-                                <li class="list-group-item">
-                                    <strong>{{ simulation.titre }}</strong> -
-                                    Créé le : {{ simulation.date_creation|date:"d F Y H:i" }}
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          
         </main>
     </div>
 </section>

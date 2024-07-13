@@ -1,61 +1,119 @@
+/* Style global */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+.container-fluid {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 28px;
+    color: #333333;
+    margin-bottom: 30px;
+}
+
 .list-group-item {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 0.25rem;
-    margin-bottom: 10px;
-    padding: 15px;
-    transition: all 0.3s ease-in-out;
-}
-
-.list-group-item:hover {
-    background-color: #f8f9fa;
-}
-
-.list-group-item .row {
-    margin-bottom: 10px;
-}
-
-.list-group-item strong {
-    color: #343a40;
+    border: none;
+    border-bottom: 1px solid #eeeeee;
+    padding: 20px;
+    background-color: #ffffff;
 }
 
 .list-group-item-info {
-    background-color: #e9ecef;
-    border-color: #ced4da;
+    background-color: #e9f7ff;
+}
+
+.list-group-item h5 {
+    font-size: 20px;
+    color: #007bff;
 }
 
 .mb-2 {
     margin-bottom: 10px;
 }
 
-h1, h5 {
-    color: #343a40;
+strong {
+    color: #333333;
 }
 
-.container-fluid {
-    padding: 20px;
+span {
+    color: #666666;
 }
 
-h1 {
-    margin-bottom: 20px;
-    text-align: center;
+/* Style des boutons */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
 }
 
-@media (max-width: 768px) {
-    .row .col-md-6 {
-        margin-bottom: 15px;
-    }
+.btn-download, .btn-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-download {
+    background-color: #f0f0f0;
+    color: #333333;
+    text-decoration: none;
+}
+
+.btn-download i {
+    margin-right: 8px;
+}
+
+.btn-download:hover {
+    background-color: #e0e0e0;
+    color: #000000;
 }
 
 .btn-edit {
     background-color: orange;
-    color: white;
-    padding: 8px 16px;
+    color: #ffffff;
     text-decoration: none;
-    border-radius: 4px;
 }
 
 .btn-edit:hover {
     background-color: darkorange;
 }
 
+/* Style des colonnes */
+.col-md-6 {
+    padding: 0 15px;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+}
+
+@media (max-width: 768px) {
+    .col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+@media (min-width: 769px) {
+    .col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}

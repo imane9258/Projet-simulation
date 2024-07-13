@@ -4,6 +4,12 @@
 Rapport Simulation
 {% endblock %}
 
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/stylerapport.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <h1>Rapport de Simulation</h1>
@@ -17,41 +23,33 @@ Rapport Simulation
 
     <!-- Conteneur pour afficher les résultats -->
     <div id="resultsContainer">
-        {% if simulations %}
-            <table class="table">
+        {% if grouped_simulations %}
+            <table class="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Titre</th>
+                        <th>Date de Création</th>
                         <th>Total TTC</th>
                         <th>Total Marge</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for simulation in simulations %}
+                    {% for group in grouped_simulations %}
                         <tr>
-                            <td>{{ simulation.titre }}</td>
-                            <td>{{ simulation.total_ttc_devis }}</td>
-                            <td>{{ simulation.marge_montant_total }}</td>
+                            <td>{{ group.titre }}</td>
+                            <td>{{ group.date_creation }}</td>
+                            <td>{{ group.total_ttc }}</td>
+                            <td>{{ group.total_marge }}</td>
                             <td>
-                                <a href="{% url 'detail_simulation' simulation.id_simulation %}" class="btn btn-voir">
+                                <a href="{% url 'detail_simulation' group.simulations.0.id_simulation %}" class="btn btn-voir">
                                     <i class="bi bi-eye"></i> Voir
-                                </a>
-                                
-                                <a href="{% url 'edit_simulation' simulation.id_simulation %}" class="btn btn-editer">
-                                    <i class="bi bi-pencil"></i> Editer
                                 </a>
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
-
-            <h3>Résumé Global</h3>
-            <p>Total TTC pour la période : {{ total_ttc }}</p>
-            <p>Total Marge pour la période : {{ total_marge }}</p>
-
-            <a href="{% url 'accueil' %}" class="btn btn-secondary">Retour à l'accueil</a>
         {% else %}
             <p>Aucune simulation trouvée pour cette période.</p>
         {% endif %}
