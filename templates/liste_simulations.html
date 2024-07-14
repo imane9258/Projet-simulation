@@ -1,6 +1,6 @@
 <!-- liste_simulations.html -->
 {% extends "base.html" %}
-
+{% load custom_filters %}
 {% block title %}Liste des Simulations{% endblock %}
 
 {% load static %}
@@ -21,22 +21,22 @@
     </tr>
   </thead>
   <tbody>
-    {% for date_creation, group in grouped_simulations.items %}
-      {% for simulation in group.lines %}
+    {% for titre, group in grouped_simulations.items %}
+     
         <tr>
-          <td>{{ simulation.titre }}</td>
-          <td>{{ group.total_prix_avec_isb }}</td>
+          <td>{{ titre }}</td>
+          <td>{{ group.total_prix_avec_isb|intspace }}</td>
           <td>
-            <a href="{% url 'detail_simulation' simulation.id_simulation %}" class="btn btn-voir">
+            <a href="{% url 'detail_simulation' group.id_simulation %}" class="btn btn-voir">
                 <i class="bi bi-eye"></i> Voir
             </a>
             
-            <a href="{% url 'edit_simulation' simulation.id_simulation %}" class="btn btn-editer">
+            <a href="{% url 'edit_simulation' group.id_simulation %}" class="btn btn-editer">
                 <i class="bi bi-pencil"></i> Editer
             </a>
           </td>
         </tr>
-      {% endfor %}
+      
     {% endfor %}
   </tbody>
 </table>

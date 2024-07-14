@@ -31,17 +31,20 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 50px; /* Diminuer la taille de l'icône */
-    height: 50px; /* Diminuer la taille de l'icône */
+    width: 40px; /* Diminuer la taille de l'icône */
+    height: 40px; /* Diminuer la taille de l'icône */
     border-radius: 50%;
+    position: absolute;
+    right: 0; /* Déplacer vers la droite */
 }
 
+
 .bg-primary {
-    background-color: #007bff !important;
+    background-color: #28a745 !important;
 }
 
 .bg-success {
-    background-color: #28a745 !important;
+    background-color: #7f28a7 !important;
 }
 
 .bg-info {

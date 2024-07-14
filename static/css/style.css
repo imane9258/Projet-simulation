@@ -12,7 +12,7 @@ body {
     top: 0;
     left: 0;
     border-radius: 2%;
-    background-color: #6D9773;
+    background-color: #526C8D;
     padding-top: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     transition: width 0.3s;
@@ -39,20 +39,22 @@ body {
 
 .sidebar ul li {
     width: 100%;
+    margin-bottom: 20px;
 }
 
 .sidebar ul li a {
     display: flex;
     align-items: center;
     padding: 10px 20px;
-    color: #000000;
+    color: #ffffff;
     text-decoration: none;
     font-size: 16px;
     transition: background-color 0.3s, color 0.3s;
 }
 
 .sidebar ul li a:hover {
-    background-color: #ffffffab;
+    background-color: #DDD;
+    color: #000000;
 }
 
 .sidebar ul li .submenu {
@@ -117,6 +119,6 @@ body {
 }
 
 .sidebar ul li.active > a {
-    background-color: #0C3B2E;
+    background-color: #29385F;
     color: #ffffff;
 }

@@ -35,8 +35,8 @@ def get_month_year(date):
     return date.strftime("%Y-%m")
 
 def accueil(request):
-    total_simulations = Simulation.objects.count()
-    total_investi = Simulation.objects.aggregate(Sum('total_prix_revient'))['total_prix_revient__sum']
+    total_simulations = Simulation.objects.values('titre').distinct().count()
+    total_investi = Simulation.objects.aggregate(Sum('prix_de_revient_total'))['prix_de_revient_total__sum']
     benefice = Simulation.objects.aggregate(Sum('marge_montant'))['marge_montant__sum']
     
     # Récupérer les dernières simulations par titre
@@ -46,7 +46,7 @@ def accueil(request):
     simulations_grouped = {}
     for simulation in dernieres_simulations:
         titre = simulation['titre']
-        details = Simulation.objects.filter(titre=titre).order_by('-date_creation')
+        details = Simulation.objects.filter(titre=titre).order_by('-titre')
         simulations_grouped[titre] = {'details': details}
 
     # Sélection de la période (mois ou année)
@@ -103,13 +103,13 @@ def liste_simulations(request):
     grouped_simulations = {}
     for simulation in simulations:
         if simulation.titre not in grouped_simulations:
-            grouped_simulations[simulation.date_creation] = {
+            grouped_simulations[simulation.titre] = {
                 'id_simulation': simulation.id_simulation,
                 'total_prix_avec_isb': 0,
                 'lines': []
             }
-        grouped_simulations[simulation.date_creation]['total_prix_avec_isb'] += simulation.prix_vente_total_ht_avec_isb
-        grouped_simulations[simulation.date_creation]['lines'].append(simulation)
+        grouped_simulations[simulation.titre]['total_prix_avec_isb'] += simulation.prix_vente_total_ht_avec_isb
+        grouped_simulations[simulation.titre]['lines'].append(simulation)
 
     context = {
         'grouped_simulations': grouped_simulations
@@ -548,7 +548,7 @@ from .models import Simulation
 def detail_simulation(request, id_simulation):
     simulation = get_object_or_404(Simulation, id_simulation=id_simulation)
 
-    simulations_grouped_by_title = Simulation.objects.filter(date_creation=simulation.date_creation)
+    simulations_grouped_by_title = Simulation.objects.filter(titre=simulation.titre)
     
    
 
@@ -562,7 +562,8 @@ def detail_simulation(request, id_simulation):
 
     context = {
         'simulation': simulation,
-        'simulations_grouped_by_title': simulations_grouped_by_title,
+        'titre': simulation.titre,
+        'simulations': simulations_grouped_by_title,
         'id_simulation': id_simulation,
         'marge_montant_total': marge_montant_total,
         'total_prix_revient': total_prix_revient,
@@ -705,8 +706,8 @@ def rapport_simulation(request):
                 'total_marge': 0,
                 'simulations': []
             }
-        grouped_simulations[key]['total_ttc'] += simulation.total_ttc_devis
-        grouped_simulations[key]['total_marge'] += simulation.marge_montant_total
+        grouped_simulations[key]['total_ttc'] = simulation.total_ttc_devis
+        grouped_simulations[key]['total_marge'] = simulation.marge_montant_total
         grouped_simulations[key]['simulations'].append(simulation)
 
     context = {
