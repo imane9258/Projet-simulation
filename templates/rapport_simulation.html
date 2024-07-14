@@ -3,7 +3,7 @@
 {% block title %}
 Rapport Simulation
 {% endblock %}
-
+{% load custom_filters %}
 {% load static %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/stylerapport.css' %}">
@@ -39,8 +39,8 @@ Rapport Simulation
                         <tr>
                             <td>{{ group.titre }}</td>
                             <td>{{ group.date_creation }}</td>
-                            <td>{{ group.total_ttc }}</td>
-                            <td>{{ group.total_marge }}</td>
+                            <td>{{ group.total_ttc |intspace }} FCFA</td>
+                            <td>{{ group.total_marge |intspace}} FCFA</td>
                             <td>
                                 <a href="{% url 'detail_simulation' group.simulations.0.id_simulation %}" class="btn btn-voir">
                                     <i class="bi bi-eye"></i> Voir
