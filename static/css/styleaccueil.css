@@ -6,13 +6,13 @@ body {
 .card {
     border: none;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(228, 8, 8, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.265);
 }
 
 .stats-card {
     position: relative;
     overflow: hidden;
-    height: 150px;
+    height: 120px; /* Diminuer la hauteur */
     color: #fff;
 }
 
@@ -23,7 +23,7 @@ body {
 }
 
 .stats-number {
-    font-size: 2rem;
+    font-size: 1.5rem; /* Diminuer la taille de la police */
     font-weight: 700;
 }
 
@@ -31,8 +31,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 60px;
-    height: 60px;
+    width: 50px; /* Diminuer la taille de l'icône */
+    height: 50px; /* Diminuer la taille de l'icône */
     border-radius: 50%;
 }
 
@@ -55,7 +55,7 @@ body {
 
 .chart-container {
     position: relative;
-    height: 400px;
+    height: 300px; /* Diminuer la hauteur du conteneur des graphiques */
     width: 100%;
 }
 
@@ -66,12 +66,16 @@ body {
 }
 
 .list-group-item {
-    font-size: 1rem;
-    padding: 15px 20px;
+    font-size: 0.9rem; /* Diminuer la taille de la police des items de la liste */
+    padding: 10px 15px; /* Ajuster le padding pour correspondre à la nouvelle taille de police */
     border: none;
     border-bottom: 1px solid #dee2e6;
 }
 
 .list-group-item:last-child {
     border-bottom: none;
+}
+
+.card.h-100 {
+    height: 300px; /* Diminuer la hauteur des cartes */
 }

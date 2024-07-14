@@ -23,7 +23,7 @@ def connexion(request):
     return render(request, 'connexion.html')
 
 
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 import json
 from django.shortcuts import render
@@ -31,11 +31,8 @@ from django.utils.timezone import now
 from django.db.models import Sum, Max
 from .models import Simulation
 
-def get_week_number(date):
-    return date.strftime("%U")
-
-def get_week_start_date(week_number, year):
-    return date.fromisocalendar(year, week_number, 1)
+def get_month_year(date):
+    return date.strftime("%Y-%m")
 
 def accueil(request):
     total_simulations = Simulation.objects.count()
@@ -52,24 +49,38 @@ def accueil(request):
         details = Simulation.objects.filter(titre=titre).order_by('-date_creation')
         simulations_grouped[titre] = {'details': details}
 
-    # Calcul des bénéfices hebdomadaires
+    # Sélection de la période (mois ou année)
+    selected_period = request.GET.get('period', 'month')
     current_year = now().year
-    weekly_benefits = {}
-    simulations = Simulation.objects.all()
+    benefit_data = {}
 
-    for simulation in simulations:
-        week = get_week_number(simulation.date_creation)
-        year = simulation.date_creation.year
-        if year == current_year:
-            key = f"{year}-W{week}"
-            if key not in weekly_benefits:
-                weekly_benefits[key] = Decimal(0)
-            weekly_benefits[key] += simulation.marge_montant
+    if selected_period == 'month':
+        # Calcul des bénéfices mensuels
+        simulations = Simulation.objects.filter(date_creation__year=current_year)
+        for simulation in simulations:
+            key = get_month_year(simulation.date_creation)
+            if key not in benefit_data:
+                benefit_data[key] = Decimal(0)
+            benefit_data[key] += simulation.marge_montant
 
-    # Préparer les données pour le graphique
-    sorted_weeks = sorted(weekly_benefits.keys())
-    dates_benefice = [get_week_start_date(int(week.split('-W')[1]), int(week.split('-W')[0])).strftime("%Y-%m-%d") for week in sorted_weeks]
-    data_benefice = [float(weekly_benefits[week]) for week in sorted_weeks]  # Convert Decimal to float
+        # Préparer les données pour le graphique
+        sorted_keys = sorted(benefit_data.keys())
+        dates_benefice = [datetime.strptime(key, "%Y-%m").strftime("%Y-%m") for key in sorted_keys]
+        data_benefice = [float(benefit_data[key]) for key in sorted_keys]
+
+    elif selected_period == 'year':
+        # Calcul des bénéfices annuels
+        simulations = Simulation.objects.all()
+        for simulation in simulations:
+            key = simulation.date_creation.year
+            if key not in benefit_data:
+                benefit_data[key] = Decimal(0)
+            benefit_data[key] += simulation.marge_montant
+
+        # Préparer les données pour le graphique
+        sorted_keys = sorted(benefit_data.keys())
+        dates_benefice = [str(key) for key in sorted_keys]
+        data_benefice = [float(benefit_data[key]) for key in sorted_keys]
 
     context = {
         'total_simulations': total_simulations,
@@ -77,9 +88,11 @@ def accueil(request):
         'benefice': benefice,
         'simulations_grouped': simulations_grouped,
         'dates_benefice': json.dumps(dates_benefice),
-        'data_benefice': json.dumps(data_benefice)
+        'data_benefice': json.dumps(data_benefice),
+        'selected_period': selected_period
     }
     return render(request, 'accueil.html', context)
+
 
 @login_required
 def liste_simulations(request):
@@ -229,166 +242,291 @@ def resultat_simulation(request, ids_simulation):
     return render(request, 'resultat_simulation.html', context)
 
 
-# views.py
 from django.http import HttpResponse
-from reportlab.lib.pagesizes import A3
+from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
+from reportlab.platypus import Table, TableStyle, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
 from .models import Simulation
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
+from django.db.models import Sum
+from reportlab.lib import colors
+import io
 
 @login_required
 def download_pdf(request, ids_simulation):
-    ids = ids_simulation.split(',')
-    simulations = Simulation.objects.filter(id_simulation__in=ids)
+    try:
+        simulation = Simulation.objects.get(id_simulation=ids_simulation)
+    except Simulation.DoesNotExist:
+        return HttpResponse("Simulation not found", status=404)
 
-    total_ht_devis = (sum(simulation.prix_vente_total_ht_avec_isb for simulation in simulations)).quantize(Decimal('0.01'))
-    marge_montant_total = (sum(simulation.marge_montant for simulation in simulations)).quantize(Decimal('0.01'))
-    total_prix_revient = (sum(simulation.prix_de_revient_total for simulation in simulations)).quantize(Decimal('0.01'))
-    total_isb = (sum(simulation.isb for simulation in simulations)).quantize(Decimal('0.01'))
-    total_tva = (sum(simulation.prix_vente_total_ht_avec_isb * Decimal('0.19') for simulation in simulations)).quantize(Decimal('0.01'))
-    total_ttc_devis = (total_ht_devis + total_tva).quantize(Decimal('0.01'))
+    # Fetch all simulation lines for the given title
+    simulations_grouped_by_title = Simulation.objects.filter(titre=simulation.titre)
 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="resultat_simulation.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="detail_simulation_{ids_simulation}.pdf"'
 
-    p = canvas.Canvas(response, pagesize=A3)
-    width, height = A3
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+
+    width, height = A4
 
     # Title
     p.setFont("Helvetica-Bold", 18)
-    p.drawString(20 * mm, height - 30 * mm, "Résultats de la Simulation")
-# Subtitle
-    p.setFont("Helvetica-Bold", 14)
-    titre_simulation = simulations[0].titre if simulations else 'Aucune simulation disponible'
-    p.drawString(20 * mm, height - 40 * mm, f"Client: {titre_simulation}")
+    title_text = f"Resultats de la Simulation "
+    p.drawCentredString(width / 2, height - 30 * mm, title_text)
 
+    # Client Title
+    p.setFont("Helvetica", 12)
+    client_title_text = f"Client: {simulation.titre}"
+    p.drawString(20 * mm, height - 40 * mm, client_title_text)
 
     y_position = height - 50 * mm
 
-    # Simulation Data
-    for simulation in simulations:
-        p.setFont("Helvetica-Bold", 12)
-        p.drawString(30 * mm, y_position, f"Désignation: {simulation.designation}")
-        y_position -= 10 * mm
+    # Create Table Data
+    styles = getSampleStyleSheet()
+    for line in simulations_grouped_by_title:
+        table_data = [
+            ["Désignation", Paragraph(line.designation, styles['BodyText'])],
+            ["Prix d'Achat Unitaire", f"{line.prix} FCFA"],
+            ["Quantité", line.quantite],
+            ["Prix Total Achat", f"{line.prix_total_achat} FCFA"],
+            ["Frais Transit", f"{line.montant_transit} FCFA"],
+            ["Frais Douane", f"{line.montant_douane} FCFA"],
+            ["Pourcentage Banque", f"{line.pourcentage_banque}%"],
+            ["Montant Banque", f"{line.pourcentage_banque_montant} FCFA"],
+            ["Marge Pourcentage", f"{line.marge_pourcentage}%"],
+            ["Montant Marge", f"{line.marge_montant} FCFA"],
+            ["Prix Vente Unitaire", f"{line.prix_vente_total_ht} FCFA"],
+            ["Prix de Revient", f"{line.prix_de_revient_total} FCFA"],
+            ["ISB", f"{line.isb} FCFA"],
+            ["Total HT avec ISB", f"{line.prix_vente_total_ht_avec_isb} FCFA"]
+        ]
 
-        p.setFont("Helvetica", 10)
-        p.drawString(20 * mm, y_position, f"Prix d'Achat Unitaire: {simulation.prix}")
-        y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Quantité: {simulation.quantite}")
-        y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Prix Total Achat: {simulation.prix_total_achat} FCFA")
-        y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Frais Transit: {simulation.montant_transit} FCFA")
-        y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Frais Douane: {simulation.montant_douane} FCFA")
-        y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Pourcentage Banque: {simulation.pourcentage_banque}%")
-        y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Montant Banque: {simulation.pourcentage_banque_montant} FCFA")
-        y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Marge Pourcentage: {simulation.marge_pourcentage}%")
-        y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Montant Marge: {simulation.marge_montant} FCFA")
-        y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Prix Vente Unitaire: {simulation.prix_vente_total_ht} FCFA")
-        y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Prix de Revient: {simulation.prix_vente_total_ht_sans_isb} FCFA")
-        y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"ISB: {simulation.isb} FCFA")
-        y_position -= 5 * mm
-        p.drawString(20 * mm, y_position, f"Total HT avec ISB: {simulation.prix_vente_total_ht_avec_isb} FCFA")
-        y_position -= 10 * mm
+        # Create Table
+        table = Table(table_data, colWidths=[100, 200])
+        table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ]))
 
-    # Totals
-    y_position -= 10 * mm
+        table.wrapOn(p, width, height)
+        if y_position - table._height < 20 * mm:  # Check if there's enough space on the page
+            p.showPage()  # Start a new page
+            y_position = height - 20 * mm  # Reset the table start position
+
+            # Draw the title and client title again on the new page
+            p.setFont("Helvetica-Bold", 18)
+            p.drawCentredString(width / 2, height - 30 * mm, title_text)
+            p.setFont("Helvetica", 12)
+            p.drawString(20 * mm, height - 40 * mm, client_title_text)
+            y_position = height - 50 * mm
+
+        table.drawOn(p, 10 * mm, y_position - table._height)  # Adjust as needed
+        y_position -= table._height + 10 * mm  # Adjust as needed
+
+    # Totals Section
+    if y_position - 30 * mm < 20 * mm:  # Check if there's enough space for the totals section
+        p.showPage()  # Start a new page
+        y_position = height - 20 * mm  # Reset the table start position
+
+        # Draw the title and client title again on the new page
+        p.setFont("Helvetica-Bold", 18)
+        p.drawCentredString(width / 2, height - 30 * mm, title_text)
+        p.setFont("Helvetica", 12)
+        p.drawString(20 * mm, height - 40 * mm, client_title_text)
+        y_position = height - 50 * mm
+
     p.setFont("Helvetica-Bold", 12)
-    p.drawString(20 * mm, y_position, "Totaux")
-    y_position -= 10 * mm
+    p.drawString(10 * mm, y_position, "Totaux")
 
-    p.setFont("Helvetica", 10)
-    p.drawString(20 * mm, y_position, f"Marge Montant Total: {marge_montant_total} FCFA")
-    y_position -= 5 * mm
-    p.drawString(20 * mm, y_position, f"Total Prix Revient: {total_prix_revient} FCFA")
-    y_position -= 5 * mm
-    p.drawString(20 * mm, y_position, f"ISB: {total_isb} FCFA")
-    y_position -= 5 * mm
-    p.drawString(20 * mm, y_position, f"Total HT du Devis: {total_ht_devis} FCFA")
-    y_position -= 5 * mm
-    p.drawString(20 * mm, y_position, f"TVA: {total_tva} FCFA")
-    y_position -= 5 * mm
-    p.drawString(20 * mm, y_position, f"Total TTC du Devis: {total_ttc_devis} FCFA")
+    # Calcul des totaux pour les simulations avec le même titre
+    marge_montant_total = simulations_grouped_by_title.aggregate(Sum('marge_montant'))['marge_montant__sum']
+    total_prix_revient = simulations_grouped_by_title.aggregate(Sum('prix_de_revient_total'))['prix_de_revient_total__sum']
+    total_isb = simulations_grouped_by_title.aggregate(Sum('isb'))['isb__sum']
+    total_ht_devis = simulations_grouped_by_title.aggregate(Sum('prix_vente_total_ht_avec_isb'))['prix_vente_total_ht_avec_isb__sum']
+    total_tva = (total_ht_devis * Decimal('0.19')).quantize(Decimal('0.01'))
+    total_ttc_devis = (total_ht_devis + total_tva).quantize(Decimal('0.01'))
+
+    # Draw Totals
+    totals = [
+        ("Marge Montant Total", f"{marge_montant_total} FCFA"),
+        ("Total Prix Revient", f"{total_prix_revient} FCFA"),
+        ("ISB", f"{total_isb} FCFA"),
+        ("Total HT du Devis", f"{total_ht_devis} FCFA"),
+        ("TVA", f"{total_tva} FCFA"),
+        ("Total TTC du Devis", f"{total_ttc_devis} FCFA")
+    ]
+
+    y_position -= 2 * mm
+
+    for item in totals:
+        if y_position < 20 * mm:  # Check if there's enough space on the page
+            p.showPage()  # Start a new page
+            y_position = height - 20 * mm  # Reset the table start position
+
+            # Draw the title and client title again on the new page
+            p.setFont("Helvetica-Bold", 18)
+            p.drawCentredString(width / 2, height - 30 * mm, title_text)
+            p.setFont("Helvetica", 12)
+            p.drawString(20 * mm, height - 40 * mm, client_title_text)
+            y_position = height - 50 * mm
+
+        p.drawString(40 * mm, y_position, f"{item[0]}: {item[1]}")
+        y_position -= 5 * mm
 
     p.showPage()
     p.save()
 
+    buffer.seek(0)
+    response.write(buffer.getvalue())
+    buffer.close()
+
     return response
 
 
-# views.py
-import openpyxl
+
+import io
 from django.http import HttpResponse
-from .models import Simulation
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from django.contrib.auth.decorators import login_required
+from .models import Simulation
 from decimal import Decimal
+from django.db.models import Sum
 
 @login_required
 def download_excel(request, ids_simulation):
-    ids = ids_simulation.split(',')
-    simulations = Simulation.objects.filter(id_simulation__in=ids)
+    try:
+        simulation = Simulation.objects.get(id_simulation=ids_simulation)
+    except Simulation.DoesNotExist:
+        return HttpResponse("Simulation not found", status=404)
 
-    total_ht_devis = sum(simulation.prix_vente_total_ht_avec_isb for simulation in simulations)
-    marge_montant_total = sum(simulation.marge_montant for simulation in simulations)
-    total_prix_revient = sum(simulation.prix_de_revient_total for simulation in simulations)
-    total_isb = sum(simulation.isb for simulation in simulations)
-    total_tva = sum(simulation.prix_vente_total_ht_avec_isb * Decimal('0.19') for simulation in simulations)
-    total_ttc_devis = total_ht_devis + total_tva
+    # Fetch all simulation lines for the given title
+    simulations_grouped_by_title = Simulation.objects.filter(titre=simulation.titre)
 
-    # Create a workbook and select the active worksheet
-    wb = openpyxl.Workbook()
+    # Create a workbook and add a worksheet
+    wb = Workbook()
     ws = wb.active
-    ws.title = "Résultats de la Simulation"
 
-    # Add headers
+    # Header 
     headers = [
-        "Désignation", "Prix d'Achat Unitaire", "Quantité", "Prix Total Achat",
-        "Frais Transit", "Frais Douane", "Pourcentage Banque","Montant Banque", "Marge Pourcentage",
-        "Montant Marge", "Prix Vente Unitaire", "Prix de Revient", "ISB", 
-        "Total HT avec ISB"
+        "Désignation", "Quantité", "Prix d'Achat Unitaire", "Prix Total Achat",
+        "Frais Transit", "Frais Douane", "Pourcentage Banque", "Montant Banque",
+        "Marge Pourcentage", "Montant Marge", "Prix Vente Unitaire", "Prix de Revient",
+        "ISB", "Total HT avec ISB"
     ]
-    ws.append(headers)
+    header_font = Font(bold=True, color="000000")
+    header_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
+    border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+    for col_num, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_num)
+        cell.value = header
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal="center")
+        cell.border = border
+        ws.column_dimensions[cell.column_letter].width = 20
+
+    # Function to replace dots with spaces
+    def format_number(value):
+        if value is not None:
+            return str(int(value)).replace('.', ' ')
+        return value
 
     # Add data
-    for simulation in simulations:
+    row_num = 2
+    for line in simulations_grouped_by_title:
         row = [
-            simulation.designation, simulation.prix, simulation.quantite, 
-            simulation.prix_total_achat, simulation.montant_transit, 
-            simulation.montant_douane, simulation.pourcentage_banque,simulation.pourcentage_banque_montant,
-            simulation.marge_pourcentage, simulation.marge_montant, 
-            simulation.prix_vente_total_ht, simulation.prix_vente_total_ht_sans_isb, 
-            simulation.isb, simulation.prix_vente_total_ht_avec_isb
+            line.designation,
+            line.quantite,
+            format_number(line.prix),
+           
+            format_number(line.prix_total_achat),
+            format_number(line.montant_transit),
+            format_number(line.montant_douane),
+            format_number(line.pourcentage_banque) + "%",
+            format_number(line.pourcentage_banque_montant),
+            format_number(line.marge_pourcentage) + "%",
+            format_number(line.marge_montant),
+            format_number(line.prix_vente_total_ht),
+            format_number(line.prix_de_revient_total),
+            format_number(line.isb),
+            format_number(line.prix_vente_total_ht_avec_isb)
         ]
-        ws.append(row)
+        for col_num, cell_value in enumerate(row, 1):
+            cell = ws.cell(row=row_num, column=col_num)
+            cell.value = cell_value
+            cell.alignment = Alignment(horizontal="center")
+            cell.border = border
 
-    # Add totals
-    ws.append([])
-    ws.append(["", "", "", "", "", "", "", "", "Marge Montant Total:", marge_montant_total])
-    ws.append(["", "", "", "", "", "", "", "", "Total Prix Revient:", total_prix_revient])
-    ws.append(["", "", "", "", "", "", "", "", "ISB:", total_isb])
-    ws.append(["", "", "", "", "", "", "", "", "Total HT du Devis:", total_ht_devis])
-    ws.append(["", "", "", "", "", "", "", "", "TVA:", total_tva])
-    ws.append(["", "", "", "", "", "", "", "", "Total TTC du Devis:", total_ttc_devis])
+        row_num += 1
 
-    # Prepare response
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=resultat_simulation.xlsx'
+    # Totals
+    total_font = Font(size=12, bold=True)
+    total_fill = PatternFill(start_color="B0F2B6", end_color="B0F2B6", fill_type="solid")
+    # Calcul des totaux pour les simulations avec le même titre
+    marge_montant_total = simulations_grouped_by_title.aggregate(Sum('marge_montant'))['marge_montant__sum']
+    total_prix_revient = simulations_grouped_by_title.aggregate(Sum('prix_de_revient_total'))['prix_de_revient_total__sum']
+    total_isb = simulations_grouped_by_title.aggregate(Sum('isb'))['isb__sum']
+    total_ht_devis = simulations_grouped_by_title.aggregate(Sum('prix_vente_total_ht_avec_isb'))['prix_vente_total_ht_avec_isb__sum']
+    
+    # Calculate total_tva and total_ttc_devis
+    total_tva = (total_ht_devis * Decimal('0.19')).quantize(Decimal('0.01'))
+    total_ttc_devis = (total_ht_devis + total_tva).quantize(Decimal('0.01'))
 
-    # Save the workbook to the response
-    wb.save(response)
+    # Format totals to string with spaces
+    formatted_marge_montant_total = format_number(marge_montant_total)
+    formatted_total_prix_revient = format_number(total_prix_revient)
+    formatted_total_isb = format_number(total_isb)
+    formatted_total_ht_devis = format_number(total_ht_devis)
+    formatted_total_tva = format_number(total_tva)
+    formatted_total_ttc_devis = format_number(total_ttc_devis)
+
+    # Add totals to the bottom of respective columns
+    ws.cell(row=row_num, column=10, value=formatted_marge_montant_total).font = total_font  # Marge Montant Total
+    ws.cell(row=row_num, column=10).fill = total_fill
+    ws.cell(row=row_num, column=12, value=formatted_total_prix_revient).font = total_font  # Total Prix Revient
+    ws.cell(row=row_num, column=12).fill = total_fill
+    ws.cell(row=row_num, column=13, value=formatted_total_isb).font = total_font  # ISB
+    ws.cell(row=row_num, column=13).fill = total_fill
+    
+    # Totals with labels
+    ws.cell(row=row_num, column=14, value="Total HT Devis").font = total_font
+    ws.cell(row=row_num, column=14).alignment = Alignment(horizontal="center")
+    ws.cell(row=row_num, column=14).fill = total_fill
+    ws.cell(row=row_num, column=15, value=formatted_total_ht_devis).font = total_font
+    ws.cell(row=row_num, column=15).fill = total_fill
+
+    ws.cell(row=row_num + 1, column=14, value="TVA").font = total_font
+    ws.cell(row=row_num + 1, column=14).alignment = Alignment(horizontal="center")
+    ws.cell(row=row_num + 1, column=14).fill = total_fill
+    ws.cell(row=row_num + 1, column=15, value=formatted_total_tva).font = total_font
+    ws.cell(row=row_num + 1, column=15).fill = total_fill
+
+    ws.cell(row=row_num + 2, column=14, value="Total TTC Devis").font = total_font
+    ws.cell(row=row_num + 2, column=14).alignment = Alignment(horizontal="center")
+    ws.cell(row=row_num + 2, column=14).fill = total_fill
+    ws.cell(row=row_num + 2, column=15, value=formatted_total_ttc_devis).font = total_font
+    ws.cell(row=row_num + 2, column=15).fill = total_fill
+
+    # Save the workbook to a BytesIO buffer
+    buffer = io.BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    # Return the response as an Excel file
+    response = HttpResponse(buffer, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="detail_simulation_{ids_simulation}.xlsx"'
 
     return response
-
 
 
 # views.py

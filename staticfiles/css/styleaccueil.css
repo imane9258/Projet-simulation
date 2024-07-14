@@ -1,169 +1,81 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
 }
 
-.sidebar ul li.active a {
-    background-color: #34495e; /* Couleur de fond pour le lien actif */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.265);
 }
 
-.dropdown-arrow {
-    float: right;
-    margin-right: 10px;
-    transition: transform 0.3s;
-}
-
-.sidebar ul li.active .dropdown-arrow {
-    transform: rotate(90deg); /* Rotation de la flèche pour le lien actif */
-}
-
-
-.sidebar {
-    width: 250px;
-    background-color: #1d6279; /* Couleur de fond du sidebar */
-    height: 100vh;
-    padding: 20px;
-    box-sizing: border-box;
-    color: white;
-    text-align: center;
-}
-
-.sidebar img {
-    width: 150px;
-    background-color: #ffff;
-    height: auto;
-    margin-bottom: 20px;
-}
-
-.sidebar h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-}
-
-.sidebar ul li {
+.stats-card {
     position: relative;
-    margin-bottom: 10px;
+    overflow: hidden;
+    height: 120px; /* Diminuer la hauteur */
+    color: #fff;
 }
 
-.sidebar ul li a {
-    color: white;
-    text-decoration: none;
-    display: block;
-    padding: 10px;
-    border-radius: 4px;
-    position: relative;
-}
-
-.sidebar ul li a:hover {
-    background-color: #2F3C3C; /* Couleur de fond au survol */
-}
-
-.sidebar ul li .submenu {
-    display: none;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    background-color: #2F3C3C; /* Couleur de fond du submenu */
-    border-radius: 4px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    position: absolute;
-    top: 100%; /* Position sous le lien parent */
-    left: 0;
-    z-index: 99;
-}
-
-.sidebar ul li .submenu li {
-    margin-left: 0; /* Réinitialiser la marge pour le submenu */
-}
-
-.sidebar ul li .submenu li a {
-    padding: 10px;
-    display: block;
-    color: white;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-}
-
-.sidebar ul li .submenu li a:hover {
-    background-color: #34495e; /* Couleur de fond au survol du sous-menu */
-}
-
-.sidebar ul li .dropdown-arrow {
-    float: right;
-    margin-right: 10px;
-    transition: transform 0.3s;
-    font-size: 0.8em; /* Taille de la flèche plus petite */
-    margin-top: 2px; /* Ajustement de la position verticale */
-}
-
-.sidebar ul li .dropdown-arrow i {
-    margin-left: 5px; /* Ajustement de la marge à gauche de l'icône */
-}
-
-.sidebar ul li:hover .dropdown-arrow {
-    transform: rotate(90deg); /* Rotation de la flèche */
-}
-
-.sidebar ul li.active a {
-    background-color: #000000; /* Couleur de fond pour le lien actif */
-}
-
-
-.main-content {
-    flex-grow: 1;
-    padding: 20px;
-}
-
-.header {
+.stats-card .card-body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
 }
 
-.header input[type="text"] {
-    padding: 10px;
-    width: 300px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+.stats-number {
+    font-size: 1.5rem; /* Diminuer la taille de la police */
+    font-weight: 700;
 }
 
-.user-info {
+.stats-icon {
     display: flex;
+    justify-content: center;
     align-items: center;
-}
-
-.user-info img {
-    width: 30px; /* Taille de l'icône utilisateur plus petite */
-    height: 30px;
+    width: 50px; /* Diminuer la taille de l'icône */
+    height: 50px; /* Diminuer la taille de l'icône */
     border-radius: 50%;
+}
+
+.bg-primary {
+    background-color: #007bff !important;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+.bg-white {
+    background-color: #fff !important;
+    color: #000;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px; /* Diminuer la hauteur du conteneur des graphiques */
+    width: 100%;
+}
+
+.form-select {
+    width: auto;
+    display: inline-block;
     margin-right: 10px;
 }
 
-.content {
-    background-color: #ecf0f1;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+.list-group-item {
+    font-size: 0.9rem; /* Diminuer la taille de la police des items de la liste */
+    padding: 10px 15px; /* Ajuster le padding pour correspondre à la nouvelle taille de police */
+    border: none;
+    border-bottom: 1px solid #dee2e6;
 }
 
-.sidebar ul li.active a {
-    background-color: #34495e; /* Couleur de fond pour le lien actif */
+.list-group-item:last-child {
+    border-bottom: none;
 }
 
-.dropdown-arrow {
-    float: right;
-    margin-right: 10px;
-    transition: transform 0.3s;
-}
-
-.sidebar ul li.active .dropdown-arrow {
-    transform: rotate(90deg); /* Rotation de la flèche pour le lien actif */
+.card.h-100 {
+    height: 100px; /* Diminuer la hauteur des cartes */
 }
