@@ -1,7 +1,7 @@
 /* Style global */
 body {
     font-family: Arial, sans-serif;
-    background-color: #4990d66f;
+    background-color: #ffffff;
     margin: 0;
     padding: 0;
 }
@@ -56,17 +56,7 @@ h1 {
     border-color: #004085;
 }
 
-.btn-secondary {
-    color: #fff;
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
 
-.btn-secondary:hover {
-    color: #fff;
-    background-color: #565e64;
-    border-color: #4e555b;
-}
 
 .btn-voir, .btn-editer {
     margin-right: 10px;
@@ -84,17 +74,7 @@ h1 {
     border-color: #1e7e34;
 }
 
-.btn-editer {
-    color: #fff;
-    background-color: #ffc107;
-    border-color: #ffc107;
-}
 
-.btn-editer:hover {
-    color: #212529;
-    background-color: #e0a800;
-    border-color: #d39e00;
-}
 
 /* Style du tableau */
 .table {

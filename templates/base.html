@@ -21,11 +21,11 @@
                     <i class="material-icons">home</i> Accueil
                 </a>
             </li>
-            <li>
+            <li class="{% if 'simulation' in request.path %}active{% endif %}">
                 <a href="#" onclick="toggleSubmenu(event)">
                     <i class="material-icons">settings</i> Simulation <span class="dropdown-arrow">&#9660;</span>
                 </a>
-                <ul class="submenu">
+                <ul class="submenu" {% if 'simulation' in request.path %}style="display: block;"{% endif %}>
                     <li class="{% if request.path == '/creer_simulation/' %}active{% endif %}">
                         <a href="{% url 'creer_simulation' %}">
                             <i class="material-icons">add_circle</i> Créer une simulation
@@ -44,7 +44,20 @@
                 </a>
             </li>
         </ul>
+
+        <!-- Footer du sidebar -->
+        <div class="sidebar-footer">
+            <hr>
+            <ul class="list-unstyled">
+                <li>
+                    <a href="{% url 'connexion' %}" id="sidebarLogoutLink">
+                        <i class="material-icons">exit_to_app</i> Déconnexion
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
+
     <div class="main-content">
         <div class="header">
             <input type="text" class="form-control" placeholder="Recherche...">
@@ -57,6 +70,7 @@
             {% block content %}{% endblock %}
         </div>
     </div>
+
     <script>
         function toggleSubmenu(event) {
             event.preventDefault();
@@ -70,6 +84,8 @@
                 arrow.classList.remove('collapsed');
             }
         }
+
+       
     </script>
 </body>
 </html>

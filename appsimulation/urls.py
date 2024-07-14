@@ -1,8 +1,9 @@
 from django.urls import path
 from . import views
-
+from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('', views.connexion, name='connexion'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('accueil/', views.accueil, name='accueil'),
     path('creer_simulation/', views.creer_simulation, name='creer_simulation'),
     path('resultat_simulation/<str:ids_simulation>/', views.resultat_simulation, name='resultat_simulation'),
