@@ -16,7 +16,7 @@
   <thead>
     <tr>
       <th>Titre</th>
-      <th>Prix Total avec ISB (FCFA)</th>
+      <th>Prix Total avec ISB </th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -25,7 +25,7 @@
      
         <tr>
           <td>{{ titre }}</td>
-          <td>{{ group.total_prix_avec_isb|intspace }}</td>
+          <td>{{ group.total_prix_avec_isb|intspace }} FCFA</td>
           <td>
             <a href="{% url 'detail_simulation' group.id_simulation %}" class="btn btn-voir">
                 <i class="bi bi-eye"></i> Voir

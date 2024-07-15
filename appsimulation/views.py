@@ -672,6 +672,7 @@ from django.db.models import Sum
 from .models import Simulation
 from datetime import timedelta
 from django.utils.timezone import now
+from decimal import Decimal
 
 def rapport_simulation(request):
     periode = request.GET.get('periode')
@@ -706,12 +707,11 @@ def rapport_simulation(request):
                 'total_marge': 0,
                 'simulations': []
             }
-        grouped_simulations[key]['total_ttc'] = simulation.total_ttc_devis
-        grouped_simulations[key]['total_marge'] = simulation.marge_montant_total
+        grouped_simulations[key]['total_ttc'] += simulation.prix_vente_total_ht_avec_isb * Decimal('1.19')
+        grouped_simulations[key]['total_marge'] += simulation.marge_montant
         grouped_simulations[key]['simulations'].append(simulation)
 
     context = {
-        
         'grouped_simulations': grouped_simulations.values(),
     }
 
