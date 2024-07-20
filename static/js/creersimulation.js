@@ -5,7 +5,7 @@ function ajouterLigne() {
     const row = `
         <tr id="row${rowIndex}">
             <td><input type="text" name="designation${rowIndex}" required></td>
-            <td><input type="text" name="quantite${rowIndex}" pattern="[0-9]*" required></td>
+            <td><input type="text" name="quantite${rowIndex}" pattern="[0-9]*" required ></td>
             <td><input type="text" name="prix_unitaire${rowIndex}" pattern="[0-9]*" required></td>
             <td><input type="text" name="frais_transit${rowIndex}" pattern="[0-9]*" required></td>
             <td><input type="text" name="frais_douane${rowIndex}" pattern="[0-9]*" required></td>

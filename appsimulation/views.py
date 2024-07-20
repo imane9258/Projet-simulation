@@ -213,20 +213,24 @@ def creer_simulation(request):
 
     return render(request, 'creer_simulation.html')
 
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from decimal import Decimal
+
 @login_required
 def resultat_simulation(request, ids_simulation):
     ids = ids_simulation.split(',')
     simulations = Simulation.objects.filter(id_simulation__in=ids)
 
-    total_ht_devis = (sum(simulation.prix_vente_total_ht_avec_isb for simulation in simulations)).quantize(Decimal('0.01'))
-    marge_montant_total = (sum(simulation.marge_montant for simulation in simulations)).quantize(Decimal('0.01'))
-    total_prix_revient =(sum(simulation.prix_de_revient_total for simulation in simulations)).quantize(Decimal('0.01'))
-    total_isb = (sum(simulation.isb for simulation in simulations)).quantize(Decimal('0.01'))
-    
+    total_ht_devis = int(sum(simulation.prix_vente_total_ht_avec_isb for simulation in simulations))
+    marge_montant_total = int(sum(simulation.marge_montant for simulation in simulations))
+    total_prix_revient = int(sum(simulation.prix_de_revient_total for simulation in simulations))
+    total_isb = int(sum(simulation.isb for simulation in simulations))
+
     # Calculating total_tva based on total_ht_devis
-    total_tva = (total_ht_devis * Decimal('0.19')).quantize(Decimal('0.01'))
+    total_tva = int(total_ht_devis * Decimal('0.19'))
     # Calculating total_ttc_devis based on total_ht_devis and total_tva
-    total_ttc_devis = (total_ht_devis + total_tva).quantize(Decimal('0.01'))
+    total_ttc_devis = total_ht_devis + total_tva
 
     context = {
         'simulations': simulations,
@@ -242,145 +246,169 @@ def resultat_simulation(request, ids_simulation):
     return render(request, 'resultat_simulation.html', context)
 
 
+
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-from reportlab.lib.units import mm
-from reportlab.platypus import Table, TableStyle, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
-from .models import Simulation
-from django.contrib.auth.decorators import login_required
-from decimal import Decimal
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from django.db.models import Sum
-from reportlab.lib import colors
+from decimal import Decimal
 import io
 
 @login_required
 def download_pdf(request, ids_simulation):
     try:
-        simulation = Simulation.objects.get(id_simulation=ids_simulation)
-    except Simulation.DoesNotExist:
-        return HttpResponse("Simulation not found", status=404)
-
-    # Fetch all simulation lines for the given title
-    simulations_grouped_by_title = Simulation.objects.filter(titre=simulation.titre)
+        ids_simulations = [int(id_) for id_ in ids_simulation.split(',')]
+        simulations = Simulation.objects.filter(id_simulation__in=ids_simulations)
+    except ValueError:
+        return HttpResponse("Invalid simulation IDs", status=400)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="detail_simulation_{ids_simulation}.pdf"'
 
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=A4)
-
     width, height = A4
 
     # Title
     p.setFont("Helvetica-Bold", 18)
-    title_text = f"Resultats de la Simulation "
-    p.drawCentredString(width / 2, height - 30 * mm, title_text)
+    title_text = "Résultats de la Simulation"
+    p.drawCentredString(width / 2, height - 30, title_text)
 
-    # Client Title
-    p.setFont("Helvetica", 12)
-    client_title_text = f"Client: {simulation.titre}"
-    p.drawString(20 * mm, height - 40 * mm, client_title_text)
+    y_position = height - 60
 
-    y_position = height - 50 * mm
+    # Afficher le nom du client une seule fois
+    if simulations.exists():
+        p.setFont("Helvetica-Bold", 17)
+        client_text = f"Client: {simulations.first().titre}"
+        p.drawCentredString(width / 2, y_position, client_text)
+        y_position -= 30
 
-    # Create Table Data
+    # Create Sample Styles
     styles = getSampleStyleSheet()
-    for line in simulations_grouped_by_title:
-        table_data = [
-            ["Désignation", Paragraph(line.designation, styles['BodyText'])],
-            ["Prix d'Achat Unitaire", f"{line.prix} FCFA"],
-            ["Quantité", line.quantite],
-            ["Prix Total Achat", f"{line.prix_total_achat} FCFA"],
-            ["Frais Transit", f"{line.montant_transit} FCFA"],
-            ["Frais Douane", f"{line.montant_douane} FCFA"],
-            ["Pourcentage Banque", f"{line.pourcentage_banque}%"],
-            ["Montant Banque", f"{line.pourcentage_banque_montant} FCFA"],
-            ["Marge Pourcentage", f"{line.marge_pourcentage}%"],
-            ["Montant Marge", f"{line.marge_montant} FCFA"],
-            ["Prix Vente Unitaire", f"{line.prix_vente_total_ht} FCFA"],
-            ["Prix de Revient", f"{line.prix_de_revient_total} FCFA"],
-            ["ISB", f"{line.isb} FCFA"],
-            ["Total HT avec ISB", f"{line.prix_vente_total_ht_avec_isb} FCFA"]
+    normal_style = styles['Normal']
+    normal_style.fontSize = 10
+    normal_style.leading = 12
+
+    bold_style = ParagraphStyle(
+        'Bold',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=12,
+        leading=14,
+    )
+
+    # Fonction pour formater les nombres
+    def format_number(value):
+        return f"{int(value):,}".replace(',', ' ')
+
+    # Prepare list data
+    for simulation in simulations:
+        if y_position < 100:  # Check if there's enough space on the page
+            p.showPage()  # Start a new page
+            y_position = height - 50  # Reset the position
+
+            # Draw the title again on the new page
+            p.setFont("Helvetica-Bold", 18)
+            p.drawCentredString(width / 2, height - 30, title_text)
+            y_position = height - 60
+
+            # Afficher le nom du client sur les nouvelles pages
+            p.setFont("Helvetica-Bold", 17)
+            p.drawCentredString(width / 2, y_position, client_text)
+            y_position -= 30
+
+        # Drawing data as list items
+        data = [
+            ("Désignation", simulation.designation),
+            ("Prix d'Achat Unitaire", f"{format_number(simulation.prix)} FCFA"),
+            ("Quantité", simulation.quantite),
+            ("Prix Total Achat", f"{format_number(simulation.prix_total_achat)} FCFA"),
+            ("Frais Transport", f"{format_number(simulation.montant_transit)} FCFA"),
+            ("Frais Douane", f"{format_number(simulation.montant_douane)} FCFA"),
+            ("Pourcentage Banque", f"{simulation.pourcentage_banque}%"),
+            ("Montant Banque", f"{format_number(simulation.pourcentage_banque_montant)} FCFA"),
+            ("Marge Pourcentage", f"{simulation.marge_pourcentage}%"),
+            ("Montant Marge", f"{format_number(simulation.marge_montant)} FCFA"),
+            ("Prix Vente Unitaire", f"{format_number(simulation.prix_vente_total_ht)} FCFA"),
+            ("Prix de Revient", f"{format_number(simulation.prix_de_revient_total)} FCFA"),
+            ("ISB", f"{format_number(simulation.isb)} FCFA"),
+            ("Total HT avec ISB", f"{format_number(simulation.prix_vente_total_ht_avec_isb)} FCFA")
         ]
 
-        # Create Table
-        table = Table(table_data, colWidths=[100, 200])
-        table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ]))
+        for label, value in data:
+            p.setFont("Helvetica-Bold", 10)
+            p.drawString(20, y_position, f"{label} : ")
+            p.setFont("Helvetica", 10)
+            p.drawString(150, y_position, f"{value}")
+            y_position -= 12  # Adjust line spacing as needed
 
-        table.wrapOn(p, width, height)
-        if y_position - table._height < 20 * mm:  # Check if there's enough space on the page
-            p.showPage()  # Start a new page
-            y_position = height - 20 * mm  # Reset the table start position
-
-            # Draw the title and client title again on the new page
-            p.setFont("Helvetica-Bold", 18)
-            p.drawCentredString(width / 2, height - 30 * mm, title_text)
-            p.setFont("Helvetica", 12)
-            p.drawString(20 * mm, height - 40 * mm, client_title_text)
-            y_position = height - 50 * mm
-
-        table.drawOn(p, 10 * mm, y_position - table._height)  # Adjust as needed
-        y_position -= table._height + 10 * mm  # Adjust as needed
+        y_position -= 10  # Add space after each simulation
 
     # Totals Section
-    if y_position - 30 * mm < 20 * mm:  # Check if there's enough space for the totals section
+    if y_position < 100:  # Check if there's enough space for the totals section
         p.showPage()  # Start a new page
-        y_position = height - 20 * mm  # Reset the table start position
+        y_position = height - 50  # Reset the table start position
 
-        # Draw the title and client title again on the new page
+        # Draw the title again on the new page
         p.setFont("Helvetica-Bold", 18)
-        p.drawCentredString(width / 2, height - 30 * mm, title_text)
-        p.setFont("Helvetica", 12)
-        p.drawString(20 * mm, height - 40 * mm, client_title_text)
-        y_position = height - 50 * mm
+        p.drawCentredString(width / 2, height - 30, title_text)
+        y_position = height - 60
+
+        # Afficher le nom du client sur les nouvelles pages
+        p.setFont("Helvetica-Bold", 17)
+        p.drawCentredString(width / 2, y_position, client_text)
+        y_position -= 30
+
+    # Draw the separator line before the totals
+    p.setStrokeColorRGB(0, 0, 0)
+    p.setLineWidth(1)
+    p.line(20, y_position, width - 20, y_position)
+    y_position -= 20
 
     p.setFont("Helvetica-Bold", 12)
-    p.drawString(10 * mm, y_position, "Totaux")
+    p.drawString(20, y_position, "Totaux")
+    y_position -= 20
 
-    # Calcul des totaux pour les simulations avec le même titre
-    marge_montant_total = simulations_grouped_by_title.aggregate(Sum('marge_montant'))['marge_montant__sum']
-    total_prix_revient = simulations_grouped_by_title.aggregate(Sum('prix_de_revient_total'))['prix_de_revient_total__sum']
-    total_isb = simulations_grouped_by_title.aggregate(Sum('isb'))['isb__sum']
-    total_ht_devis = simulations_grouped_by_title.aggregate(Sum('prix_vente_total_ht_avec_isb'))['prix_vente_total_ht_avec_isb__sum']
+    # Calcul des totaux
+    total_marge_montant = simulations.aggregate(Sum('marge_montant'))['marge_montant__sum'] or 0
+    total_prix_revient = simulations.aggregate(Sum('prix_de_revient_total'))['prix_de_revient_total__sum'] or 0
+    total_isb = simulations.aggregate(Sum('isb'))['isb__sum'] or 0
+    total_ht_devis = simulations.aggregate(Sum('prix_vente_total_ht_avec_isb'))['prix_vente_total_ht_avec_isb__sum'] or 0
     total_tva = (total_ht_devis * Decimal('0.19')).quantize(Decimal('0.01'))
     total_ttc_devis = (total_ht_devis + total_tva).quantize(Decimal('0.01'))
 
     # Draw Totals
     totals = [
-        ("Marge Montant Total", f"{marge_montant_total} FCFA"),
-        ("Total Prix Revient", f"{total_prix_revient} FCFA"),
-        ("ISB", f"{total_isb} FCFA"),
-        ("Total HT du Devis", f"{total_ht_devis} FCFA"),
-        ("TVA", f"{total_tva} FCFA"),
-        ("Total TTC du Devis", f"{total_ttc_devis} FCFA")
+        ("Marge Montant Total", f"{format_number(total_marge_montant)} FCFA"),
+        ("Total Prix Revient", f"{format_number(total_prix_revient)} FCFA"),
+        ("ISB", f"{format_number(total_isb)} FCFA"),
+        ("Total HT du Devis", f"{format_number(total_ht_devis)} FCFA"),
+        ("TVA", f"{format_number(total_tva)} FCFA"),
+        ("Total TTC du Devis", f"{format_number(total_ttc_devis)} FCFA")
     ]
 
-    y_position -= 2 * mm
-
-    for item in totals:
-        if y_position < 20 * mm:  # Check if there's enough space on the page
+    for label, value in totals:
+        if y_position < 20:  # Check if there's enough space on the page
             p.showPage()  # Start a new page
-            y_position = height - 20 * mm  # Reset the table start position
+            y_position = height - 50  # Reset the table start position
 
-            # Draw the title and client title again on the new page
+            # Draw the title again on the new page
             p.setFont("Helvetica-Bold", 18)
-            p.drawCentredString(width / 2, height - 30 * mm, title_text)
-            p.setFont("Helvetica", 12)
-            p.drawString(20 * mm, height - 40 * mm, client_title_text)
-            y_position = height - 50 * mm
+            p.drawCentredString(width / 2, height - 30, title_text)
+            y_position = height - 60
 
-        p.drawString(40 * mm, y_position, f"{item[0]}: {item[1]}")
-        y_position -= 5 * mm
+            # Afficher le nom du client sur les nouvelles pages
+            p.setFont("Helvetica-Bold", 17)
+            p.drawCentredString(width / 2, y_position, client_text)
+            y_position -= 30
+
+        p.setFont("Helvetica-Bold", 10)
+        p.drawString(20, y_position, f"{label} : ")
+        p.setFont("Helvetica", 10)
+        p.drawString(150, y_position, f"{value}")
+        y_position -= 12  # Adjust line spacing as needed
 
     p.showPage()
     p.save()
@@ -717,18 +745,24 @@ def rapport_simulation(request):
 
     return render(request, 'rapport_simulation.html', context)
 
-
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
-from reportlab.platypus import Table, TableStyle, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from .models import Simulation
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 from django.db.models import Sum
-from reportlab.lib import colors
+import io
+
+def format_number(value):
+    """Format number with space for thousands and no decimal places."""
+    if value is None:
+        value = Decimal(0)
+    formatted_number = f"{int(value):,}".replace(",", " ")
+    return formatted_number + " FCFA"
 
 @login_required
 def download_detail_pdf(request, id_simulation):
@@ -751,98 +785,118 @@ def download_detail_pdf(request, id_simulation):
     # Title
     p.setFont("Helvetica-Bold", 18)
     title_text = f"Détails de la Simulation {id_simulation}"
-    title_width = p.stringWidth(title_text, "Helvetica-Bold", 18)
     p.drawCentredString(width / 2, height - 30 * mm, title_text)
 
     # Client Title
     p.setFont("Helvetica", 12)
     client_title_text = f"Client: {simulation.titre}"
-    client_title_width = p.stringWidth(client_title_text, "Helvetica", 12)
-    p.drawString((width - client_title_width) / 2, height - 40 * mm, client_title_text)
+    p.drawString(10 * mm, height - 40 * mm, client_title_text)
 
     y_position = height - 50 * mm
 
-    # Create Table Data
-    data = []
-    table_list = []  # To store each Table object
+    # Create styles
     styles = getSampleStyleSheet()
+    normal_style = styles['BodyText']
+    bold_style = ParagraphStyle(name='Bold', parent=normal_style, fontName='Helvetica-Bold', spaceAfter=6)
+
     for line in simulations_grouped_by_title:
-        data.append([
-            ("Désignation", Paragraph(line.designation, styles['BodyText'])),
-            ("Prix d'Achat Unitaire", f"{line.prix} FCFA"),
+        data = [
+            ("Désignation", line.designation),
+            ("Prix d'Achat Unitaire", format_number(line.prix)),
             ("Quantité", line.quantite),
-            ("Prix Total Achat", f"{line.prix_total_achat} FCFA"),
-            ("Frais Transit", f"{line.montant_transit} FCFA"),
-            ("Frais Douane", f"{line.montant_douane} FCFA"),
+            ("Prix Total Achat", format_number(line.prix_total_achat)),
+            ("Frais Transit", format_number(line.montant_transit)),
+            ("Frais Douane", format_number(line.montant_douane)),
             ("Pourcentage Banque", f"{line.pourcentage_banque}%"),
-            ("Montant Banque", f"{line.pourcentage_banque_montant} FCFA"),
+            ("Montant Banque", format_number(line.pourcentage_banque_montant)),
             ("Marge Pourcentage", f"{line.marge_pourcentage}%"),
-            ("Montant Marge", f"{line.marge_montant} FCFA"),
-            ("Prix Vente Unitaire", f"{line.prix_vente_total_ht} FCFA"),
-            ("Prix de Revient", f"{line.prix_de_revient_total} FCFA"),
-            ("ISB", f"{line.isb} FCFA"),
-            ("Total HT avec ISB", f"{line.prix_vente_total_ht_avec_isb} FCFA")
-        ])
+            ("Montant Marge", format_number(line.marge_montant)),
+            ("Prix Vente Unitaire", format_number(line.prix_vente_total_ht)),
+            ("Prix de Revient", format_number(line.prix_de_revient_total)),
+            ("ISB", format_number(line.isb)),
+            ("Total HT avec ISB", format_number(line.prix_vente_total_ht_avec_isb))
+        ]
 
-    # Calculate available space and adjust the table position
-    table_start_y = y_position
+        for item in data:
+            title_paragraph = Paragraph(f"{item[0]}:", bold_style)
+            value_paragraph = Paragraph(f"{item[1]}", normal_style)
 
-    for item in data:
-        table = Table(item, colWidths=[100, 200])
-        table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ]))
+            w, h = title_paragraph.wrap(width - 20 * mm, y_position)
+            title_paragraph.drawOn(p, 10 * mm, y_position - h)
+            w, h = value_paragraph.wrap(width - 40 * mm, y_position)
+            value_paragraph.drawOn(p, 50 * mm, y_position - h)
+            y_position -= h + 2 * mm
 
-        table.wrapOn(p, width, height)
-        if table_start_y - table._height < 20 * mm:  # Check if there's enough space on the page
-            p.showPage()  # Start a new page
-            table_start_y = height - 20 * mm  # Reset the table start position
+            if y_position < 20 * mm:  # Check if there's enough space on the page
+                p.showPage()  # Start a new page
+                y_position = height - 20 * mm  # Reset the table start position
 
-        table.drawOn(p, 10 * mm, table_start_y - table._height)  # Adjust as needed
-        table_start_y -= table._height + 5 * mm  # Adjust as needed
+                # Draw the title again on the new page
+                p.setFont("Helvetica-Bold", 18)
+                p.drawCentredString(width / 2, height - 30 * mm, title_text)
+                p.setFont("Helvetica", 12)
+                p.drawString(10 * mm, height - 40 * mm, client_title_text)
+                y_position -= 20 * mm
+
+        y_position -= 10 * mm  # Add extra space between different simulations
+
+    # Add a line before the Totals section
+    p.setStrokeColorRGB(0, 0, 0)
+    p.setLineWidth(1)
+    p.line(10 * mm, y_position, width - 10 * mm, y_position)
+    y_position -= 5 * mm
 
     # Totals Section
     p.setFont("Helvetica-Bold", 12)
-    p.drawString(10 * mm, table_start_y - 5 * mm, "Totaux")
+    p.drawString(10 * mm, y_position, "Totaux")
+    y_position -= 8 * mm
 
     # Calcul des totaux pour les simulations avec le même titre
-    marge_montant_total = simulations_grouped_by_title.aggregate(Sum('marge_montant'))['marge_montant__sum']
-    total_prix_revient = simulations_grouped_by_title.aggregate(Sum('prix_de_revient_total'))['prix_de_revient_total__sum']
-    total_isb = simulations_grouped_by_title.aggregate(Sum('isb'))['isb__sum']
-    total_ht_devis = simulations_grouped_by_title.aggregate(Sum('prix_vente_total_ht_avec_isb'))['prix_vente_total_ht_avec_isb__sum']
-    total_tva = (total_ht_devis * Decimal('0.19')).quantize(Decimal('0.01'))
-    total_ttc_devis = (total_ht_devis + total_tva).quantize(Decimal('0.01'))
+    marge_montant_total = simulations_grouped_by_title.aggregate(Sum('marge_montant'))['marge_montant__sum'] or Decimal(0)
+    total_prix_revient = simulations_grouped_by_title.aggregate(Sum('prix_de_revient_total'))['prix_de_revient_total__sum'] or Decimal(0)
+    total_isb = simulations_grouped_by_title.aggregate(Sum('isb'))['isb__sum'] or Decimal(0)
+    total_ht_devis = simulations_grouped_by_title.aggregate(Sum('prix_vente_total_ht_avec_isb'))['prix_vente_total_ht_avec_isb__sum'] or Decimal(0)
+    total_tva = total_ht_devis * Decimal('0.19')
+    total_ttc_devis = total_ht_devis + total_tva
+
+    # Convert totals to integers to remove decimals
+    total_tva = int(total_tva)
+    total_ttc_devis = int(total_ttc_devis)
 
     # Draw Totals
     totals = [
-        ("Marge Montant Total", f"{marge_montant_total} FCFA"),
-        ("Total Prix Revient", f"{total_prix_revient} FCFA"),
-        ("ISB", f"{total_isb} FCFA"),
-        ("Total HT du Devis", f"{total_ht_devis} FCFA"),
-        ("TVA", f"{total_tva} FCFA"),
-        ("Total TTC du Devis", f"{total_ttc_devis} FCFA")
+        ("Marge Montant Total", format_number(marge_montant_total)),
+        ("Total Prix Revient", format_number(total_prix_revient)),
+        ("ISB", format_number(total_isb)),
+        ("Total HT du Devis", format_number(total_ht_devis)),
+        ("TVA", format_number(total_tva)),
+        ("Total TTC du Devis", format_number(total_ttc_devis))
     ]
 
-    table_start_y -= 2 * mm
-
     for item in totals:
-        p.drawString(40 * mm, table_start_y, f"{item[0]}: {item[1]}")
-        table_start_y -= 5 * mm
+        title_paragraph = Paragraph(f"{item[0]}:", bold_style)
+        value_paragraph = Paragraph(f"{item[1]}", normal_style)
 
-    p.showPage()
+        w, h = title_paragraph.wrap(width - 20 * mm, y_position)
+        title_paragraph.drawOn(p, 10 * mm, y_position - h)
+        w, h = value_paragraph.wrap(width - 40 * mm, y_position)
+        value_paragraph.drawOn(p, 50 * mm, y_position - h)
+        y_position -= h + 2 * mm
+
+        if y_position < 20 * mm:  # Check if there's enough space on the page
+            p.showPage()  # Start a new page
+            y_position = height - 20 * mm  # Reset the table start position
+
+            # Draw the title again on the new page
+            p.setFont("Helvetica-Bold", 18)
+            p.drawCentredString(width / 2, height - 30 * mm, title_text)
+            p.setFont("Helvetica", 12)
+            p.drawString(10 * mm, height - 40 * mm, client_title_text)
+            y_position -= 20 * mm
+
     p.save()
-
     buffer.seek(0)
-    response.write(buffer.getvalue())
-    buffer.close()
-
-    return response
+    return HttpResponse(buffer, content_type='application/pdf')
 
 
 

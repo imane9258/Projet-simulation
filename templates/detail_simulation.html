@@ -36,7 +36,7 @@
 
 {% block content %}
 <div class="container-fluid">
-    <h1 class="mt-4 text-center">Détails de la Simulation: {{ simulation.titre }}</h1>
+    <h1 class="mt-4 text-center">Détails de la Simulation</h1>
 
     <ul class="list-group list-group-flush">
         {% for simulation in simulations %}
@@ -56,7 +56,7 @@
                         <strong>Prix Total d'Achat :</strong> <span>{{ simulation.prix_total_achat|intspace }} FCFA</span>
                     </div>
                     <div class="mb-2">
-                        <strong>Frais de Transit :</strong> <span>{{ simulation.montant_transit|intspace }} FCFA</span>
+                        <strong>Frais de Transport :</strong> <span>{{ simulation.montant_transit|intspace }} FCFA</span>
                     </div>
                     <div class="mb-2">
                         <strong>Frais de Douane :</strong> <span>{{ simulation.montant_douane|intspace }} FCFA</span>

@@ -1,10 +1,9 @@
-<!-- creer_simulation.html -->
-
 {% extends 'base.html' %}
 
 {% block title %}Créer une Simulation{% endblock %}
 {% load static %}
 {% block extra_css %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
 <link rel="stylesheet" href="{% static 'css/stylecreersimulation.css' %}">
 {% endblock %}
@@ -12,12 +11,17 @@
 {% block content %}
 <div class="form-container">
     <h1>Créer une simulation</h1>
-    <form id="simulationForm" method="POST" action="{% url 'creer_simulation' %}">
+    <form id="simulationForm" method="POST" action="{% url 'creer_simulation' %}"autocomplete="off" required title="" >
         {% csrf_token %}
         <div class="form-group">
             <label for="titre">Titre de la simulation :</label>
-            <input type="text" id="titre" name="titre" autocomplete="off" required required title="Veuillez remplir ce champs">
-            <div class="error-message" id="titreError">Ce champ est requis.</div>
+            <input type="text" id="titre" name="titre" required title="" autocomplete="off" required >
+            <div class="button-container">
+                <button type="button" class="add-row-button" onclick="ajouterLigne()">Ajouter une ligne</button>
+                <button type="button" class="simulate-button" onclick="simuler()">
+                    <i class="material-icons">play_arrow</i> Simuler
+                </button>
+            </div>
         </div>
 
         <div style="overflow-x: auto;">
@@ -34,34 +38,21 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="servicesTableBody">
-                    <!-- Première ligne de service -->
+                <tbody id="servicesTableBody" novalidate>
                     <tr id="row0">
-                        <td><input type="text" name="designation0"   autocomplete="off" required title="Veuillez remplir ce champs"></td>
-                        <td><input type="text" name="quantite0" pattern="[0-9]*" required autocomplete="off" required title="Veuillez remplir ce champs"></td>
-                        <td><input type="text" name="prix_unitaire0" pattern="[0-9]*" required autocomplete="off" required title="Veuillez remplir ce champs"></td>
-                        <td><input type="text" name="frais_transit0" pattern="[0-9]*" required autocomplete="off" required title="Veuillez remplir ce champs"></td>
-                        <td><input type="text" name="frais_douane0" pattern="[0-9]*" required autocomplete="off" required title="Veuillez remplir ce champs"></td>
-                        <td><input type="text" name="marge_percentage0" pattern="[0-9]*" required autocomplete="off" required title="Veuillez remplir ce champs"></td>
-                        <td><input type="text" name="pourcentage_banque0" pattern="[0-9]*" required autocomplete="off" required title="Veuillez remplir ce champs"></td>
+                        <td><input type="text" name="designation0" required title="" autocomplete="off" required></td>
+                        <td><input type="text" name="quantite0" pattern="[0-9]*" required title="" autocomplete="off" required></td>
+                        <td><input type="text" name="prix_unitaire0" pattern="[0-9]*" required title="" autocomplete="off" required></td>
+                        <td><input type="text" name="frais_transit0" pattern="[0-9]*" required title=""  autocomplete="off" required></td>
+                        <td><input type="text" name="frais_douane0" pattern="[0-9]*" required title="" autocomplete="off" required></td>
+                        <td><input type="text" name="marge_percentage0" pattern="[0-9]*"required title=""  autocomplete="off" required></td>
+                        <td><input type="text" name="pourcentage_banque0" pattern="[0-9]*" required title="" autocomplete="off" required></td>
                         <td><button type="button" class="delete-button" onclick="supprimerLigne(this)">Supprimer</button></td>
                     </tr>
                 </tbody>
             </table>
         </div>
-
-        <div class="button-container">
-            <div class="button-group">
-                <button type="button" class="add-row-button" onclick="ajouterLigne()">Ajouter une ligne</button>
-              
-            </div>
-        </div>
-
-        <button type="button" class="simulate-button" onclick="simuler()">
-            <i class="fas fa-play"></i> Simuler
-        </button>
     </form>
 </div>
 <script src="{% static 'js/creersimulation.js' %}"></script>
 {% endblock %}
-   

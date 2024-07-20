@@ -1,22 +1,26 @@
 let rowIndex = 1;
 
+
 function ajouterLigne() {
     const tableBody = document.getElementById('servicesTableBody');
-    const row = `
-        <tr id="row${rowIndex}">
-            <td><input type="text" name="designation${rowIndex}" required></td>
-            <td><input type="text" name="quantite${rowIndex}" pattern="[0-9]*" required></td>
-            <td><input type="text" name="prix_unitaire${rowIndex}" pattern="[0-9]*" required></td>
-            <td><input type="text" name="frais_transit${rowIndex}" pattern="[0-9]*" required></td>
-            <td><input type="text" name="frais_douane${rowIndex}" pattern="[0-9]*" required></td>
-            <td><input type="text" name="marge_percentage${rowIndex}" pattern="[0-9]*" required></td>
-            <td><input type="text" name="pourcentage_banque${rowIndex}" pattern="[0-9]*" required></td>
-            <td><button type="button" class="delete-button" onclick="supprimerLigne(this)">Supprimer</button></td>
-        </tr>
+    const row = document.createElement('tr');
+    row.id = `row${rowIndex}`;
+    
+    row.innerHTML = `
+        <td><input type="text" name="designation${rowIndex}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required></td>
+        <td><input type="text" name="quantite${rowIndex}" pattern="[0-9]*" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required></td>
+        <td><input type="text" name="prix_unitaire${rowIndex}" pattern="[0-9]*" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required></td>
+        <td><input type="text" name="frais_transit${rowIndex}" pattern="[0-9]*" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required></td>
+        <td><input type="text" name="frais_douane${rowIndex}" pattern="[0-9]*" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required></td>
+        <td><input type="text" name="marge_percentage${rowIndex}" pattern="[0-9]*" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required></td>
+        <td><input type="text" name="pourcentage_banque${rowIndex}" pattern="[0-9]*" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required></td>
+        <td><button type="button" class="delete-button" onclick="supprimerLigne(this)">Supprimer</button></td>
     `;
-    tableBody.insertAdjacentHTML('beforeend', row);
+    
+    tableBody.appendChild(row);
     rowIndex++;
 }
+
 
 function supprimerLigne(button) {
     const row = button.parentElement.parentElement;
@@ -84,7 +88,3 @@ function resetErrors() {
         input.classList.remove('error');
     });
 }
-
-
-
-

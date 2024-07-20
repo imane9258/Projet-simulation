@@ -1,81 +1,138 @@
-body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f8f9fa;
-}
+/* static/css/styles.css */
 
-.card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.265);
-}
-
-.stats-card {
-    position: relative;
-    overflow: hidden;
-    height: 120px; /* Diminuer la hauteur */
-    color: #fff;
-}
-
-.stats-card .card-body {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.stats-number {
-    font-size: 1.5rem; /* Diminuer la taille de la police */
-    font-weight: 700;
-}
-
-.stats-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 50px; /* Diminuer la taille de l'icône */
-    height: 50px; /* Diminuer la taille de l'icône */
-    border-radius: 50%;
-}
-
-.bg-primary {
-    background-color: #007bff !important;
-}
-
-.bg-success {
-    background-color: #28a745 !important;
-}
-
-.bg-info {
-    background-color: #17a2b8 !important;
-}
-
-.bg-white {
-    background-color: #fff !important;
-    color: #000;
-}
-
-.chart-container {
-    position: relative;
-    height: 50px; /* Diminuer la hauteur du conteneur des graphiques */
+.form-container {
     width: 100%;
+    margin: 0 auto;
 }
 
-.form-select {
-    width: auto;
-    display: inline-block;
-    margin-right: 10px;
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
-.list-group-item {
-    font-size: 0.9rem; /* Diminuer la taille de la police des items de la liste */
-    padding: 10px 15px; /* Ajuster le padding pour correspondre à la nouvelle taille de police */
+.form-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    table-layout: fixed;
+}
+
+label {
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+#titre {
+    width: 25%;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.form-table th, .form-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+.form-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.form-table td input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px;
+    font-size: 14px;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px;
+}
+
+.add-row-button, .delete-row-button, .delete-button {
+    background-color: #4CAF50;
+    color: white;
     border: none;
-    border-bottom: 1px solid #dee2e6;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
 }
 
-.list-group-item:last-child {
-    border-bottom: none;
+.delete-button, .delete-row-button {
+    background-color: #f44336;
 }
 
-.card.h-100 {
-    height: 50px; /* Diminuer la hauteur des cartes */
+.simulate-button {
+    background-color: orange;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.simulate-button i {
+    margin-right: 5px;
+}
+
+.simulate-button:focus {
+    outline: none;
+}
+
+.error-message {
+    display: none;
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+input.error {
+    border: 1px solid red;
+}
+
+.error {
+    border-color: red;
+}
+
+/* stylecreersimulation.css */
+
+.loading-animation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(255, 255, 255);
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+}
+
+.loading-animation i {
+    font-size: 24px;
+    margin-right: 10px;
 }

@@ -2,8 +2,9 @@
 
 .form-container {
     width: 100%;
-    margin-top: 0 auto;
+    margin: 0 auto;
 }
+
 h1 {
     text-align: center;
     margin-bottom: 20px;
@@ -19,13 +20,15 @@ h1 {
 label {
     font-weight: bold;
     font-size: 20px;
-    margin-bottom: 10px;
+    margin: 0;
+   
 }
 
 #titre {
     width: 25%;
     padding: 8px;
     font-size: 16px;
+    margin-right: 25%;
 }
 
 .form-table th, .form-table td {
@@ -51,15 +54,17 @@ label {
     font-size: 14px;
 }
 
-.button-container {
+.form-group {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
-.button-group {
+.button-container {
     display: flex;
     gap: 10px;
+    align-items: center; /* Aligne les boutons verticalement au centre */
 }
 
 .add-row-button, .delete-row-button, .delete-button {
@@ -86,13 +91,11 @@ label {
     padding: 10px 20px;
     text-align: center;
     text-decoration: none;
-   
     font-size: 16px;
     cursor: pointer;
     border-radius: 5px;
-    float: right;
-    margin-top: 20px;
 }
+
 .simulate-button i {
     margin-right: 5px;
 }
@@ -107,15 +110,15 @@ label {
     font-size: 12px;
     margin-top: 5px;
 }
+
 input.error {
     border: 1px solid red;
 }
 
-
-
 .error {
     border-color: red;
 }
+
 /* stylecreersimulation.css */
 
 .loading-animation {
@@ -135,7 +138,10 @@ input.error {
 .loading-animation i {
     font-size: 24px;
     margin-right: 10px;
-    
 }
 
-
+.simulate-button .material-icons {
+    font-size: 20px; /* Ajustez la taille selon vos besoins */
+    vertical-align: middle;
+    margin-right: 5px;
+}
