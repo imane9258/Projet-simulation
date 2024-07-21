@@ -15,4 +15,8 @@ urlpatterns = [
     path('detail_simulation/<int:id_simulation>/', views.detail_simulation, name='detail_simulation'),
     path('download_detail_pdf/<int:id_simulation>/', views.download_detail_pdf, name='download_detail_pdf'),
     path('download_detail_excel/<int:id_simulation>/', views.download_detail_excel, name='download_detail_excel'),
+    path('profile/users/', views.user_list, name='user_list'),
+    path('profile/users/add/', views.add_user, name='add_user'),
+    path('profile/users/edit/<int:user_id>/', views.edit_user, name='edit_user'),
+    path('profile/users/delete/<int:user_id>/', views.delete_user, name='delete_user'),
 ]

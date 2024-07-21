@@ -9,6 +9,12 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -41,6 +47,11 @@
             <li class="{% if request.path == '/rapport_simulation/' %}active{% endif %}">
                 <a href="{% url 'rapport_simulation' %}">
                     <i class="material-icons">insert_chart</i> Rapports
+                </a>
+            </li>
+            <li class="{% if request.path == '/profile/' %}active{% endif %}">
+                <a href="{% url 'user_list' %}">
+                    <i class="material-icons">person</i> Profil
                 </a>
             </li>
         </ul>
@@ -84,8 +95,6 @@
                 arrow.classList.remove('collapsed');
             }
         }
-
-       
     </script>
 </body>
 </html>

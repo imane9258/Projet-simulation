@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styleuserlist.css' %}">
+{% endblock %}
+{% block content %}
+  <div class="container mt-4">
+    <h2>Liste des utilisateurs</h2>
+    <a href="{% url 'add_user' %}" class="btn btn-primary">Ajouter un utilisateur</a>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Identifiant</th>
+          <th>Mot de passe</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td>{{ user.username }}</td>
+            <td>***************</td>
+            <td>
+              <a href="{% url 'edit_user' user.id %}" class="btn btn-warning">Editer</a>
+              <button class="btn btn-danger" onclick="confirmDelete('{{ user.id }}', '{{ user.username }}')">Supprimer</button>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmer Suppression</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Voulez vous vraiment supprimer l'utilisateur <span id="userToDelete"></span>?
+          </div>
+          <div class="modal-footer">
+            <form id="deleteForm" method="post" action="">
+              {% csrf_token %}
+              <input type="hidden" name="user_id" id="userIdToDelete">
+              <button type="submit" class="btn btn-danger">Supprimer</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript to handle the confirmation dialog -->
+  <script>
+    function confirmDelete(userId, username) {
+      document.getElementById('userToDelete').textContent = username;
+      document.getElementById('userIdToDelete').value = userId;
+      var form = document.getElementById('deleteForm');
+      form.action = "{% url 'delete_user' 0 %}".replace('0', userId); // Update the action URL with the user ID
+      $('#confirmDeleteModal').modal('show'); // Show the modal
+    }
+  </script>
+{% endblock %}

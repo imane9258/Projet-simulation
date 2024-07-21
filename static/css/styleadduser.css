@@ -1,0 +1,30 @@
+
+    .invalid-feedback {
+        color: #dc3545; /* Couleur rouge pour les messages d'erreur */
+        font-size: 0.875em; /* Taille de police légèrement plus petite */
+    }
+    .alert {
+        margin-top: 20px; /* Ajoute de l'espace au-dessus de l'alerte */
+    }
+    .form-control {
+        border-radius: 0.25rem; /* Arrondir les coins des champs de formulaire */
+    }
+    .btn {
+        border-radius: 0.25rem; /* Arrondir les coins des boutons */
+    }
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f0f2f5;
+    }
+    h2 {
+        text-align: center;
+        margin-bottom: 20px; /* Ajouter un espace en dessous du titre */
+    }
+    .container {
+        max-width: 100%; /* Limiter la largeur du conteneur pour un meilleur affichage */
+        margin: 0 auto; /* Centre le conteneur horizontalement */
+    }
+    .required-field::after {
+        content: " *";
+        color: red;
+    }

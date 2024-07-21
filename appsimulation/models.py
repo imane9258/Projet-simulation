@@ -1,9 +1,11 @@
 from django.db import models
 from django.utils import timezone 
-class Utilisateur(models.Model):
-    nom = models.CharField(max_length=50)  
-    mot_de_passe = models.CharField(max_length=50)
+class User(models.Model):
+    username = models.CharField(max_length=150, unique=True)
+    password = models.CharField(max_length=128)  # Pour des raisons de sécurité, n'utilisez pas cela en production
 
+    def __str__(self):
+        return self.username
 
 
 class Client(models.Model):

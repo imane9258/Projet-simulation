@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+{% load form_filters %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styleedituser.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h2>Editer Utilisateur</h2>
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="username">Identifiant</label>
+        {{ form.username|add_class:"form-control" }}
+        {% if form.username.errors %}
+          <div class="invalid-feedback">
+            {% for error in form.username.errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="password1">Mot de passe</label>
+        {{ form.password1|add_class:"form-control" }}
+        {% if form.password1.errors %}
+          <div class="invalid-feedback">
+            {% for error in form.password1.errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="password2">Confirmation Mot de passe</label>
+        {{ form.password2|add_class:"form-control" }}
+        {% if form.password2.errors %}
+          <div class="invalid-feedback">
+            {% for error in form.password2.errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a href="{% url 'user_list' %}" class="btn btn-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
